@@ -1,0 +1,6 @@
+# ninja log v5
+172	1676	7210091263815045	build.ninja	8de0a403c20cfa04
+4	780	7210088510802166	CMakeFiles/untitled.dir/main.c.obj	e26c4d3f813f56b5
+1	615	7210089951233538	CMakeFiles/proyecto_estructura.dir/main.c.obj	c1c79d8765a21fe9
+780	2804	7210088531022603	untitled.exe	dc1c89fef8d2bbc4
+618	2538	7210089970424892	proyecto_estructura.exe	15d82659746c76e3

@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.21)
+project(proyecto_estructura)
+
+set(CMAKE_C_STANDARD 17)
+
+set(CMAKE_PREFIX_PATH "D:/cLion/SDL2-devel-2.28.4-mingw/SDL2-2.28.4/x86_64-w64-mingw32/lib/cmake/SDL2")
+set(SDL2_DIR "D:/cLion/SDL2-devel-2.28.4-mingw/SDL2-2.28.4/x86_64-w64-mingw32")
+
+find_package(SDL2 REQUIRED)
+
+add_executable(proyecto_estructura main.c)
+
+set(SDL_IMAGE_INCLUDE_DIR "D:/cLion/SDL2-devel-2.28.4-mingw/SDL2_image-2.6.3/x86_64-w64-mingw32/include/SDL2")
+set(SDL_IMAGE_LIBRARY "D:/cLion/SDL2-devel-2.28.4-mingw/SDL2_image-2.6.3/x86_64-w64-mingw32/lib/libSDL2_image.a")
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules/")
+set(SDL2TTF_INCLUDE_DIR "D:/cLion/SDL2-devel-2.28.4-mingw/SDL2_ttf-2.20.2/x86_64-w64-mingw32/include/SDL2")
+set(SDL2TTF_LIBRARY "D:/cLion/SDL2-devel-2.28.4-mingw/SDL2_ttf-2.20.2/x86_64-w64-mingw32/lib/libSDL2_ttf.a")
+find_package(SDL2TTF REQUIRED)
+include_directories(${SDL2TTF_INCLUDE_DIR})
+
+include_directories(${SDL_IMAGE_INCLUDE_DIR})
+target_link_libraries(proyecto_estructura PRIVATE ${SDL2_LIBRARIES} ${SDL_IMAGE_LIBRARY} ${SDL2TTF_LIBRARY} -lRpcrt4)
+target_link_libraries(proyecto_estructura PRIVATE SDL2::SDL2)
