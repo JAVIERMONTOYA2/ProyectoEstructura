@@ -245,11 +245,14 @@ MINGW32_LIBRARY:STRING=mingw32
 //Path to a library.
 SDL2TTFMAIN_LIBRARY:FILEPATH=SDL2TTFMAIN_LIBRARY-NOTFOUND
 
+//Path to a file.
+SDL2TTF_INCLUDE_DIR:PATH=D:/cLion/projecty/ProyectoEstructura/assets/SDL2_ttf-2.20.2/x86_64-w64-mingw32/include/SDL2
+
 //Path to a library.
 SDL2TTF_LIBRARY_TEMP:FILEPATH=SDL2TTF_LIBRARY_TEMP-NOTFOUND
 
 //The directory containing a CMake configuration file for SDL2.
-SDL2_DIR:PATH=D:/cLion/SDL2-devel-2.28.4-mingw/SDL2-2.28.4/x86_64-w64-mingw32/lib/cmake/SDL2
+SDL2_DIR:PATH=D:/cLion/projecty/ProyectoEstructura/assets/SDL2-2.28.4/x86_64-w64-mingw32/lib/cmake/SDL2
 
 //Value Computed by CMake
 proyecto_estructura_BINARY_DIR:STATIC=D:/cLion/projecty/ProyectoEstructura/cmake-build-debug
@@ -429,7 +432,7 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding SDL2TTF
-FIND_PACKAGE_MESSAGE_DETAILS_SDL2TTF:INTERNAL=[D:/cLion/SDL2-devel-2.28.4-mingw/SDL2_ttf-2.20.2/x86_64-w64-mingw32/lib/libSDL2_ttf.a][D:/cLion/SDL2-devel-2.28.4-mingw/SDL2_ttf-2.20.2/x86_64-w64-mingw32/include/SDL2][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_SDL2TTF:INTERNAL=[D:/cLion/projecty/ProyectoEstructura/assets/SDL2_ttf-2.20.2/x86_64-w64-mingw32/lib/libSDL2_ttf.a][D:/cLion/projecty/ProyectoEstructura/assets/SDL2_ttf-2.20.2/x86_64-w64-mingw32/include/SDL2][v()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //linker supports push/pop state

@@ -1,6 +1,11 @@
 # ninja log v5
-172	1676	7210091263815045	build.ninja	8de0a403c20cfa04
+0	231	7210191657116748	build.ninja	5d10f50e6dcff5be
 4	780	7210088510802166	CMakeFiles/untitled.dir/main.c.obj	e26c4d3f813f56b5
-1	615	7210089951233538	CMakeFiles/proyecto_estructura.dir/main.c.obj	c1c79d8765a21fe9
-780	2804	7210088531022603	untitled.exe	dc1c89fef8d2bbc4
-618	2538	7210089970424892	proyecto_estructura.exe	15d82659746c76e3
+3	695	7210189720370832	CMakeFiles/proyecto_estructura.dir/main.c.obj	e8e2d69c1b889125
+702	2784	7210177155338337	proyecto_estructura.exe	15d82659746c76e3
+4	850	7210191671355852	CMakeFiles/proyecto_estructura.dir/main.c.obj	5e07295edc86d323
+850	2929	7210191692124121	proyecto_estructura.exe	835e68736e9b19bb
+4	787	7210192922482336	CMakeFiles/proyecto_estructura.dir/main.c.obj	5e07295edc86d323
+787	3059	7210192945175527	proyecto_estructura.exe	835e68736e9b19bb
+5	737	7210194623496358	CMakeFiles/proyecto_estructura.dir/main.c.obj	5e07295edc86d323
+738	4860	7210194663201851	proyecto_estructura.exe	835e68736e9b19bb

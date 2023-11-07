@@ -27,7 +27,7 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
     int running = 1;
     SDL_Event event;
 
-    SDL_Surface* bgSurface = IMG_Load("D://Descargas D/221.png");
+    SDL_Surface* bgSurface = IMG_Load("../assets/Imagenes/bg.png");
     if (!bgSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 0;
@@ -118,14 +118,14 @@ int WinMain(int argc, char* argv[]) {
         return 1;
     }
 
-    SDL_Surface* bgSurface = IMG_Load("D://Descargas D/221.png");
+    SDL_Surface* bgSurface = IMG_Load("../assets/Imagenes/bg.png");
     if (!bgSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 1;
     }
 
     // Cargar el logo
-    SDL_Surface* logoSurface = IMG_Load("D://Descargas D/siss.png");
+    SDL_Surface* logoSurface = IMG_Load("../assets/Imagenes/cartel.png");
     if (!logoSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 1;
@@ -139,7 +139,7 @@ int WinMain(int argc, char* argv[]) {
     int windowWidth, windowHeight;
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-    TTF_Font* font = TTF_OpenFont("D:/cLion/projecty/ProyectoEstructura/cmake-build-debug/lato/Lato-Black.ttf", 24);  // Reemplaza con la ruta a tu fuente.
+    TTF_Font* font = TTF_OpenFont("../assets/Fuentes/lato/Lato-Black.ttf", 24);
 
     SDL_FreeSurface(bgSurface);
     SDL_FreeSurface(logoSurface);
