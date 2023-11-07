@@ -1,7 +1,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
-
+#include <stdio.h>
 
 void drawText(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font, const char* text, float x, float y, float w, float h) {
     int windowWidth, windowHeight;
