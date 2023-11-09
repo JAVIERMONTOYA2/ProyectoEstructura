@@ -1,5 +1,4 @@
 #include <SDL.h>
-#include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <string.h>
 #include <stdio.h>
@@ -39,31 +38,11 @@ typedef struct{
     int ronda;
 } Jugador;
 
-void drawText(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font, const char* text, float x, float y, float w, float h) {
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-
-    int posX = windowWidth * x;
-    int posY = windowHeight * y;
-    int width = windowWidth * w;
-    int height = windowHeight * h;
-
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, (SDL_Color){0, 0, 0, 255});
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    SDL_Rect textRect = {posX, posY, width, height};
-
-    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-}
-
-int showSettings(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
+int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
     int running = 1;
     SDL_Event event;
 
-    SDL_Surface* bgSurface = IMG_Load("../assets/Imagenes/bg.png");
+    SDL_Surface* bgSurface = IMG_Load("../assets/Imagenes/clean.png");
     if (!bgSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 0;
@@ -73,9 +52,34 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
 
     SDL_FreeSurface(bgSurface);
 
+    SDL_Texture* fullscreenTexture = IMG_LoadTexture(renderer, "../assets/Imagenes/fullscreen.png");
+    if (!fullscreenTexture) {
+        SDL_Log("Error: IMG_LoadTexture() ha fallado: %s", IMG_GetError());
+        return 0;
+    }
+
+    /*SDL_Texture* musicVolumeTexture = IMG_LoadTexture(renderer, "../assets/Imagenes/music_volume.png");
+    if (!musicVolumeTexture) {
+        SDL_Log("Error: IMG_LoadTexture() ha fallado: %s", IMG_GetError());
+        return 0;
+    }
+
+    SDL_Texture* soundVolumeTexture = IMG_LoadTexture(renderer, "../assets/Imagenes/sound_volume.png");
+    if (!soundVolumeTexture) {
+        SDL_Log("Error: IMG_LoadTexture() ha fallado: %s", IMG_GetError());
+        return 0;
+    }*/
 
     int windowWidth, windowHeight;
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+    int buttonWidth = windowWidth * 0.17;
+    int buttonHeight = windowHeight * 0.08;
+    int originalButtonX = windowWidth * (0.5 - 0.08);
+    int originalButtonY = windowHeight * (0.5 - 0.05);
+
+    int buttonX = originalButtonX;
+    int buttonY = originalButtonY;
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -92,11 +96,6 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
                         int mouseX = event.button.x;
                         int mouseY = event.button.y;
 
-                        int buttonWidth = windowWidth * 0.11;
-                        int buttonHeight = windowHeight * 0.08;
-                        int buttonX = windowWidth * (0.5 - 0.1);
-                        int buttonY = windowHeight * (0.75 - 0.05);
-
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
                             Uint32 flag = SDL_GetWindowFlags(window);
                             if (flag & SDL_WINDOW_FULLSCREEN) {
@@ -108,16 +107,19 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
                             }
                         }
 
-                        buttonY = windowHeight * (0.82 - 0.05);
+                        buttonY += windowHeight * (0.6 - 0.05);
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
                             SDL_Log("Volumen musica");
                         }
 
-                        buttonY = windowHeight * (0.89 - 0.05);
+                        buttonY += windowHeight * (0.71 - 0.05);
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-
-                            SDL_Log("Volumen musica");
+                            SDL_Log("Volumen sonido");
                         }
+
+                        buttonX = originalButtonX;
+                        buttonY = originalButtonY;
+
                     }
                     break;
             }
@@ -129,28 +131,58 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font) {
         SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
 
         Uint32 flag = SDL_GetWindowFlags(window);
-        if (flag & SDL_WINDOW_FULLSCREEN){
-            drawText(window, renderer, font, "Pantalla completa : Si", 0.5 - 0.1, 0.75 - 0.05, 0.17, 0.08);
-        }else{
-            drawText(window, renderer, font, "Pantalla completa : No", 0.5 - 0.1, 0.75 - 0.05, 0.17, 0.08);
+        SDL_Rect srcrect;
+        SDL_Rect dstrect;
+
+        srcrect.w = 276;
+        srcrect.h = 74;
+        srcrect.x = 0;
+        srcrect.y = 0;
+        if (flag & SDL_WINDOW_FULLSCREEN) {
+            srcrect.x = 0;
+        } else {
+            srcrect.x = 276;
         }
-        drawText(window, renderer, font, "Volumen musica", 0.5 - 0.1, 0.82 - 0.05, 0.17, 0.08);
-        drawText(window, renderer, font, "Volumen musica", 0.5 - 0.1, 0.89 - 0.05, 0.17, 0.08);
+        dstrect.x = originalButtonX;
+        dstrect.y = originalButtonY;
+        dstrect.w = buttonWidth;
+        dstrect.h = buttonHeight;
+        SDL_RenderCopyEx(renderer, fullscreenTexture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);
+
+        /*srcrect.w = 128;
+        srcrect.h = 64;
+        srcrect.x = 0;
+        srcrect.y = 0;
+
+        dstrect.x = buttonX;
+        dstrect.y = buttonY + buttonHeight;
+        dstrect.w = buttonWidth;
+        dstrect.h = buttonHeight;
+        SDL_RenderCopyEx(renderer, musicVolumeTexture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);
+
+        srcrect.w = 128;
+        srcrect.h = 64;
+        srcrect.x = 0;
+        srcrect.y = 0;
+
+        dstrect.x = buttonX;
+        dstrect.y = buttonY + buttonHeight * 2;
+        dstrect.w = buttonWidth;
+        dstrect.h = buttonHeight;
+        SDL_RenderCopyEx(renderer, soundVolumeTexture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);*/
 
         SDL_RenderPresent(renderer);
+
+
     }
     return 0;
 }
 
+
 int WinMain(int argc, char* argv[]) {
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        SDL_Log("Error: SDL_Init() ha fallado: %s", SDL_GetError());
-        return 1;
-    }
-
-    if (TTF_Init() != 0) {
-        SDL_Log("Error: TTF_Init() ha fallado: %s", TTF_GetError());
+        SDL_Log("Error al inicializar SDL: %s", SDL_GetError());
         return 1;
     }
 
@@ -159,26 +191,38 @@ int WinMain(int argc, char* argv[]) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 1;
     }
-
-    SDL_Surface* logoSurface = IMG_Load("../assets/Imagenes/cartel.png");
-    if (!logoSurface) {
-        SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+        SDL_Log("Error al obtener la resolución de la pantalla: %s", SDL_GetError());
+        SDL_Quit();
         return 1;
     }
 
+    const int maxWidth = 1920;
+    const int maxHeight = 1080;
 
-    SDL_Window* window = SDL_CreateWindow("Eco Defender", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280 , 720, 0);
+    int windowWidth = dm.w;
+    int windowHeight = dm.h;
+
+    if (windowWidth > maxWidth || windowHeight > maxHeight) {
+        windowWidth = maxWidth;
+        windowHeight = maxHeight;
+    }
+
+    SDL_Window* window = SDL_CreateWindow("Eco Defender", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
+
+    if (!window) {
+        SDL_Log("Error al crear la ventana: %s", SDL_GetError());
+    }
+
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
-    SDL_Texture* logoTexture = SDL_CreateTextureFromSurface(renderer, logoSurface);
 
-    int windowWidth, windowHeight;
+
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-    TTF_Font* font = TTF_OpenFont("../assets/Fuentes/lato/Lato-Black.ttf", 24);
-
     SDL_FreeSurface(bgSurface);
-    SDL_FreeSurface(logoSurface);
+
 
     SDL_Event event;
     int running = 1;
@@ -202,20 +246,20 @@ int WinMain(int argc, char* argv[]) {
 
                         int buttonWidth = windowWidth * 0.11;
                         int buttonHeight = windowHeight * 0.08;
-                        int buttonX = windowWidth * (0.5 - 0.1);
-                        int buttonY = windowHeight * (0.75 - 0.05);
+                        int buttonX = windowWidth * (0.55 - 0.08);
+                        int buttonY = windowHeight * (0.5 - 0.05);
 
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                            // Si el usuario hace clic en "Jugar".
+
                             SDL_Log("Jugar");
-                            SDL_SetWindowFullscreen(window,1);
+
                         }
-                        buttonY = windowHeight * (0.82 - 0.05);
+                        buttonY = windowHeight * (0.6 - 0.05);
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
                             // Si el usuario hace clic en "Configuraciones".
                             SDL_Log("Configuraciones");
                             if (!inSettings) {
-                                int resultado = showSettings(window, renderer, font);
+                                int resultado = showSettings(window, renderer);
                                 if (resultado == 1) {
                                     inSettings = 0;
                                 }else{
@@ -224,15 +268,13 @@ int WinMain(int argc, char* argv[]) {
                             }
                         }
 
-                        buttonY = windowHeight * (0.89 - 0.05);
+                        buttonY = windowHeight * (0.71 - 0.05);
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                            // Si el usuario hace clic en "Puntuaciones".
                             SDL_Log("Puntuaciones");
                         }
 
-                        buttonY = windowHeight * (0.95 - 0.05);
+                        buttonY = windowHeight * (0.84 - 0.05);
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                            // Si el usuario hace clic en "Salir".
                             running = 0;
                         }
                     }
@@ -242,29 +284,13 @@ int WinMain(int argc, char* argv[]) {
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-
         SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
-
-        int logoWidth = windowWidth / 4;
-        int logoHeight = windowHeight / 2.5;
-        int logoX = windowWidth / 2 - logoWidth / 2;
-        int logoY = windowHeight / 2 - logoHeight / 2;
-        SDL_Rect logoRect = {logoX,logoY, logoWidth, logoHeight};
-        SDL_RenderCopy(renderer, logoTexture, NULL, &logoRect);
-
-        drawText(window, renderer, font, "Jugar", 0.55 - 0.1, 0.75 - 0.05, 0.06, 0.08);
-        drawText(window, renderer, font, "Configuraciones", 0.5 - 0.1, 0.82 - 0.05, 0.17, 0.08);
-        drawText(window, renderer, font, "Puntuaciones", 0.5 - 0.1, 0.89 - 0.05, 0.17, 0.08);
-        drawText(window, renderer, font, "Salir", 0.55 - 0.1, 0.95 - 0.05, 0.06, 0.08);
 
 
         SDL_RenderPresent(renderer);
     }
-
-    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    TTF_Quit();
     SDL_Quit();
 
     return 0;

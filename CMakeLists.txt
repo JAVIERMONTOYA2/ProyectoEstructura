@@ -14,13 +14,11 @@ set(SDL_IMAGE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/assets/SDL2_image-2.6.3/x86_64-w6
 set(SDL_IMAGE_LIBRARY "${CMAKE_SOURCE_DIR}/assets/SDL2_image-2.6.3/x86_64-w64-mingw32/lib/libSDL2_image.a")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules/")
-set(SDL2TTF_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/assets/SDL2_ttf-2.20.2/x86_64-w64-mingw32/include/SDL2")
-set(SDL2TTF_LIBRARY "${CMAKE_SOURCE_DIR}/assets/SDL2_ttf-2.20.2/x86_64-w64-mingw32/lib/libSDL2_ttf.a")
-find_package(SDL2TTF REQUIRED)
+
 include_directories(${SDL2TTF_INCLUDE_DIR})
 
 include_directories(${SDL_IMAGE_INCLUDE_DIR})
-target_link_libraries(proyecto_estructura PRIVATE ${SDL2_LIBRARIES} ${SDL_IMAGE_LIBRARY} ${SDL2TTF_LIBRARY} -lRpcrt4)
+target_link_libraries(proyecto_estructura PRIVATE ${SDL2_LIBRARIES} ${SDL_IMAGE_LIBRARY} -lRpcrt4)
 target_link_libraries(proyecto_estructura PRIVATE SDL2::SDL2)
 
 
