@@ -1,7 +1,43 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+#include <string.h>
 #include <stdio.h>
+
+typedef struct {
+    float Xpos;
+    float Ypos;
+} Punto;
+
+typedef struct{
+    Punto inicio;
+    Punto final;
+    Punto actual;
+    char* tipo;
+} Proyectil ;
+
+typedef struct{
+    char* tipo;
+    int dmg;
+    Punto coordenadas;
+    int nivel;
+    int costo;
+} Torreta;
+
+typedef struct{
+    char* tipo;
+    float velocidad;
+    Punto posicion;
+    int vida;
+    int daño;
+    int premio;
+} Enemigo;
+
+typedef struct{
+    int vida;
+    int puntos;
+    int ronda;
+} Jugador;
 
 void drawText(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font, const char* text, float x, float y, float w, float h) {
     int windowWidth, windowHeight;
@@ -124,14 +160,14 @@ int WinMain(int argc, char* argv[]) {
         return 1;
     }
 
-    // Cargar el logo
     SDL_Surface* logoSurface = IMG_Load("../assets/Imagenes/cartel.png");
     if (!logoSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Eco Defender", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920 , 1080, 0);
+
+    SDL_Window* window = SDL_CreateWindow("Eco Defender", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280 , 720, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_Texture* logoTexture = SDL_CreateTextureFromSurface(renderer, logoSurface);
