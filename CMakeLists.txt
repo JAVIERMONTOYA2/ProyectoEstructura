@@ -8,7 +8,10 @@ set(SDL2_DIR "${CMAKE_SOURCE_DIR}/assets/SDL2-2.28.4/x86_64-w64-mingw32")
 
 find_package(SDL2 REQUIRED)
 
-add_executable(proyecto_estructura main.c)
+add_executable(proyecto_estructura main.c
+        list.c
+        list.h
+)
 
 set(SDL_IMAGE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/assets/SDL2_image-2.6.3/x86_64-w64-mingw32/include/SDL2")
 set(SDL_IMAGE_LIBRARY "${CMAKE_SOURCE_DIR}/assets/SDL2_image-2.6.3/x86_64-w64-mingw32/lib/libSDL2_image.a")

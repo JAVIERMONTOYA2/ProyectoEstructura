@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include <string.h>
 #include <stdio.h>
+#include "list.h"
 
 typedef struct {
     float Xpos;
@@ -37,6 +38,8 @@ typedef struct{
     int puntos;
     int ronda;
 } Jugador;
+
+
 
 int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
     int running = 1;
@@ -178,8 +181,69 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
     return 0;
 }
 
+// Aquí tendría que ir la función esPosicionValida
+
+// Asumí que se toman los datos del tipo y las posiciones de otro lado xd
+void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, float posicionX, float posicionY){
+
+    int costoTorreta;
+    // Voy a poner costos arbitrarios
+    switch (tipoTorreta) {
+        case 1:
+            costoTorreta = 25;
+            break;
+        case 2:
+            costoTorreta = 50;
+            break;
+        case 3:
+            costoTorreta = 75;
+            break;
+        default:
+            // si el tipo de torreta no coincide
+            return;
+    }
+
+    if (jugador->puntos < costoTorreta) {
+        // jugador no tiene suficiente dinero
+        return;
+    }
+
+    // Creación de la torreta
+    Torreta* nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
+
+    // Seleccionar tipo de torreta
+    switch(tipoTorreta){
+        case 1:
+            nuevaTorreta->tipo = "Torreta tipo 1";
+            //aquí irían las stats de la torreta que aún no definimos
+
+            //además de como se le asigna una textura
+            break;
+        case 2:
+            nuevaTorreta->tipo = "Torreta tipo 2";
+            break;
+        case 3:
+            nuevaTorreta->tipo = "Torreta tipo 3";
+            break;
+        default:
+            //si el tipo de torreta no coincide
+            free(nuevaTorreta);
+            return;
+    }
+
+    nuevaTorreta->coordenadas.Xpos = posicionX;
+    nuevaTorreta->coordenadas.Ypos = posicionY;
+
+    nuevaTorreta->costo = costoTorreta;
+
+    jugador->puntos -= costoTorreta;
+
+    pushFront(listaTorretas, nuevaTorreta);
+}
 
 int WinMain(int argc, char* argv[]) {
+
+    List* listaTorretas = createList();
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Error al inicializar SDL: %s", SDL_GetError());
