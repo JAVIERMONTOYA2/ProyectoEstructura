@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "list.h"
 
+
 typedef struct {
     float Xpos;
     float Ypos;
@@ -39,9 +40,55 @@ typedef struct{
     int ronda;
 } Jugador;
 
+//Esta funcion como dice su nombre dibuja el fondo ya sea del menu o del juego
+void dibujarFondo(char*nombre,int x,int y,SDL_Window* window,SDL_Renderer* renderer) {
+    SDL_Surface* bgSurface = IMG_Load(nombre);
+    if (!bgSurface) {
+        SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
+        return;
+    }
+    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+    if (!bgTexture) {
+        SDL_Log("Error: SDL_CreateTextureFromSurface() ha fallado: %s", SDL_GetError());
+        return;
+    }
+    SDL_FreeSurface(bgSurface);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(bgTexture);
+}
+
+//Esta funcion dibuja cualquier imagen solo necesitas el nombre del archivo, y una posicion
+//Cuando hagan el bucle del juego podre hacer que funcione bien
+void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
+    SDL_Surface* imageSurface = IMG_Load(nombreArchivo);
+    if (!imageSurface) {
+        SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
+        return;
+    }
+    SDL_Texture* imageTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
+    if (!imageTexture) {
+        SDL_Log("Error: SDL_CreateTextureFromSurface() ha fallado: %s", SDL_GetError());
+        return;
+    }
+    SDL_FreeSurface(imageSurface);
+    int width, height;
+    SDL_QueryTexture(imageTexture, NULL, NULL, &width, &height);
+    SDL_Rect destino;
+    destino.x = x;
+    destino.y = y;
+    destino.w = width;
+    destino.h = height;
+    SDL_RenderCopy(renderer, imageTexture, NULL, &destino);
+    SDL_DestroyTexture(imageTexture);
+}
 
 
-int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
+
+int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     int running = 1;
     SDL_Event event;
 
@@ -52,7 +99,6 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
     }
 
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
-
     SDL_FreeSurface(bgSurface);
 
     SDL_Texture* fullscreenTexture = IMG_LoadTexture(renderer, "../assets/Imagenes/fullscreen.png");
@@ -60,18 +106,6 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
         SDL_Log("Error: IMG_LoadTexture() ha fallado: %s", IMG_GetError());
         return 0;
     }
-
-    /*SDL_Texture* musicVolumeTexture = IMG_LoadTexture(renderer, "../assets/Imagenes/music_volume.png");
-    if (!musicVolumeTexture) {
-        SDL_Log("Error: IMG_LoadTexture() ha fallado: %s", IMG_GetError());
-        return 0;
-    }
-
-    SDL_Texture* soundVolumeTexture = IMG_LoadTexture(renderer, "../assets/Imagenes/sound_volume.png");
-    if (!soundVolumeTexture) {
-        SDL_Log("Error: IMG_LoadTexture() ha fallado: %s", IMG_GetError());
-        return 0;
-    }*/
 
     int windowWidth, windowHeight;
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -151,28 +185,6 @@ int showSettings(SDL_Window* window, SDL_Renderer* renderer) {
         dstrect.w = buttonWidth;
         dstrect.h = buttonHeight;
         SDL_RenderCopyEx(renderer, fullscreenTexture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);
-
-        /*srcrect.w = 128;
-        srcrect.h = 64;
-        srcrect.x = 0;
-        srcrect.y = 0;
-
-        dstrect.x = buttonX;
-        dstrect.y = buttonY + buttonHeight;
-        dstrect.w = buttonWidth;
-        dstrect.h = buttonHeight;
-        SDL_RenderCopyEx(renderer, musicVolumeTexture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);
-
-        srcrect.w = 128;
-        srcrect.h = 64;
-        srcrect.x = 0;
-        srcrect.y = 0;
-
-        dstrect.x = buttonX;
-        dstrect.y = buttonY + buttonHeight * 2;
-        dstrect.w = buttonWidth;
-        dstrect.h = buttonHeight;
-        SDL_RenderCopyEx(renderer, soundVolumeTexture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);*/
 
         SDL_RenderPresent(renderer);
 
@@ -316,14 +328,15 @@ int WinMain(int argc, char* argv[]) {
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
 
                             SDL_Log("Jugar");
-
+                            char*nombre={"../assets/Imagenes/ll.png"};
+                            dibujarFondo(nombre, windowWidth,windowHeight,window,renderer);
                         }
                         buttonY = windowHeight * (0.6 - 0.05);
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
                             // Si el usuario hace clic en "Configuraciones".
                             SDL_Log("Configuraciones");
                             if (!inSettings) {
-                                int resultado = showSettings(window, renderer);
+                                int resultado = mostrarConfiguraciones(window, renderer);
                                 if (resultado == 1) {
                                     inSettings = 0;
                                 }else{

@@ -1,3 +1,3 @@
-C:/Users/bvela/CLionProjects/ProyectoEstructura/cmake-build-debug/CMakeFiles/proyecto_estructura.dir
-C:/Users/bvela/CLionProjects/ProyectoEstructura/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/bvela/CLionProjects/ProyectoEstructura/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+D:/cLion/projecty/ProyectoEstructura/cmake-build-debug/CMakeFiles/proyecto_estructura.dir
+D:/cLion/projecty/ProyectoEstructura/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/cLion/projecty/ProyectoEstructura/cmake-build-debug/CMakeFiles/rebuild_cache.dir
