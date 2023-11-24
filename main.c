@@ -23,6 +23,7 @@ typedef struct{
     Punto coordenadas;
     int nivel;
     int costo;
+    int angulo;
 } Torreta;
 
 typedef struct{
@@ -85,8 +86,6 @@ void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
     SDL_RenderCopy(renderer, imageTexture, NULL, &destino);
     SDL_DestroyTexture(imageTexture);
 }
-
-
 
 int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     int running = 1;
@@ -193,7 +192,18 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     return 0;
 }
 
-// Aquí tendría que ir la función esPosicionValida
+int esPosicionValidaTorreta(List* listaTorretas, float x, float y) {
+    Torreta* curTorreta = firstList(listaTorretas);
+
+    while (curTorreta != NULL) {
+        if (curTorreta->coordenadas.Xpos == x && curTorreta->coordenadas.Ypos == y){
+            return 1; // La posición está ocupada.
+        }
+        curTorreta = nextList(listaTorretas);
+    }
+    // La posición no está ocupada.
+    return 0;
+}
 
 // Asumí que se toman los datos del tipo y las posiciones de otro lado xd
 void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, float posicionX, float posicionY){
@@ -251,6 +261,48 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, floa
     jugador->puntos -= costoTorreta;
 
     pushFront(listaTorretas, nuevaTorreta);
+}
+
+/*Torreta* clickEnTorreta(List* listaTorretas, float x, float y){
+    Torreta* curTorreta = (Torreta*)firstList(listaTorretas);
+
+    while (curTorreta != NULL) {
+        if (curTorreta->coordenadas.Xpos <= x && x <= curTorreta->coordenadas.Xpos + BLOCK_WIDTH &&
+            curTorreta->coordenadas.Ypos <= y && y <= curTorreta->coordenadas.Ypos + BLOCK_HEIGHT) {
+            return curTorreta;
+        }
+
+        curTorreta = (Torreta*)nextList(listaTorretas);
+    }
+
+    return NULL;
+}*/
+
+/*void eliminarTorreta(List* listaTorretas, Jugador* jugador, float x, float y){
+    Torreta* curTorreta = firstList(listaTorretas);
+
+    while (curTorreta != NULL){
+        if (curTorreta->coordenadas.Xpos == x && curTorreta->coordenadas.Ypos == y){
+            jugador->puntos += curTorreta->costo;
+            popCurrent(listaTorretas);
+            free(curTorreta);
+            return;
+        }
+        curTorreta = (Torreta*)nextList(listaTorretas);
+    }
+}*/
+
+// Esta función solo funciona para la torreta que detecta ataques en su area
+// faltaría pasar los enemigos
+void atacarEnemigos(List* listaTorretas, Jugador* jugador, SDL_Renderer* renderer){
+
+    Torreta* curTorreta = firstList(listaTorretas);
+    // inicializar lista de enemigos
+    // habría que definir
+
+    double torx, towy;
+    double distancia_x, distancia_y, radio, radio_detectado;
+
 }
 
 int WinMain(int argc, char* argv[]) {
