@@ -7,6 +7,8 @@
 
 #define FPS 60
 #define TICK 1000/FPS
+#define BACKGROUND "../assets/Imagenes/bg.png"
+#define BACKGROUNDINGAME "../assets/Imagenes/bgingame.png"
 
 typedef enum{
     MENU,
@@ -414,6 +416,8 @@ void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
 
 int WinMain(int argc, char* argv[]) {
 
+    EstadoJuego estadoActual = MENU;
+
     List* listaTorretas = createList();
     List* listaEnemigos = createList();
     Enemigo* enemigos = malloc(sizeof(Enemigo) * 100);
@@ -466,7 +470,6 @@ int WinMain(int argc, char* argv[]) {
     int inSettings=0;
     Uint32 frameStart;
     int frameTime;
-    EstadoJuego estadoActual = MENU;
 
     while (running) {
 
@@ -474,87 +477,100 @@ int WinMain(int argc, char* argv[]) {
 
         while (SDL_PollEvent(&event)) {
             //switch de procesado de eventos
-            switch (event.type) {
-                case SDL_QUIT:
-                    running = 0;
-                    break;
-                case SDL_KEYDOWN:
-                    if (event.key.keysym.sym == SDLK_ESCAPE) {
-                        running = 0;
-                    }
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    if (event.button.button == SDL_BUTTON_LEFT) {
-                        int mouseX = event.button.x;
-                        int mouseY = event.button.y;
+            switch (estadoActual) {
+                case MENU:
+                    switch (event.type) {
+                        case SDL_QUIT:
+                            running = 0;
+                            break;
+                        case SDL_KEYDOWN:
+                            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                                running = 0;
+                            }
+                            break;
+                        case SDL_MOUSEBUTTONDOWN:
+                            if (event.button.button == SDL_BUTTON_LEFT) {
+                                int mouseX = event.button.x;
+                                int mouseY = event.button.y;
 
-                        int buttonWidth = windowWidth * 0.11;
-                        int buttonHeight = windowHeight * 0.08;
-                        int buttonX = windowWidth * (0.55 - 0.08);
-                        int buttonY = windowHeight * (0.5 - 0.05);
+                                int buttonWidth = windowWidth * 0.11;
+                                int buttonHeight = windowHeight * 0.08;
+                                int buttonX = windowWidth * (0.55 - 0.08);
+                                int buttonY = windowHeight * (0.5 - 0.05);
 
-                        if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                                if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
 
-                            SDL_Log("Jugar");
-                            char*nombre={"../assets/Imagenes/ll.png"};
-                            dibujarFondo(nombre, windowWidth,windowHeight,window,renderer);
-                        }
-                        buttonY = windowHeight * (0.6 - 0.05);
-                        if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                            // Si el usuario hace clic en "Configuraciones".
-                            SDL_Log("Configuraciones");
-                            if (!inSettings) {
-                                int resultado = mostrarConfiguraciones(window, renderer);
-                                if (resultado == 1) {
-                                    inSettings = 0;
-                                }else{
-                                    inSettings=1;
+                                    SDL_Log("Jugar");
+                                    estadoActual = JUGANDO;
+                                }
+                                buttonY = windowHeight * (0.6 - 0.05);
+                                if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                                    // Si el usuario hace clic en "Configuraciones".
+                                    SDL_Log("Configuraciones");
+                                    if (!inSettings) {
+                                        int resultado = mostrarConfiguraciones(window, renderer);
+                                        if (resultado == 1) {
+                                            estadoActual = MENU;
+                                            inSettings = 0;
+                                        }else{
+                                            inSettings=1;
+                                        }
+                                    }
+                                }
+
+                                buttonY = windowHeight * (0.71 - 0.05);
+                                if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                                    SDL_Log("Puntuaciones");
+                                }
+
+                                buttonY = windowHeight * (0.84 - 0.05);
+                                if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                                    running = 0;
                                 }
                             }
-                        }
-
-                        buttonY = windowHeight * (0.71 - 0.05);
-                        if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                            SDL_Log("Puntuaciones");
-                        }
-
-                        buttonY = windowHeight * (0.84 - 0.05);
-                        if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                            running = 0;
-                        }
+                            break;
                     }
                     break;
-            }
-            //switch para actualizar los eventos del juego
-            switch (estadoActual) {
-                case MENU:
-                    break;
                 case JUGANDO:
+                    switch (event.type) {
+                        case SDL_QUIT:
+                            running = 0;
+                            break;
+                        case SDL_KEYDOWN:
+                            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                                estadoActual = MENU;
+                            }
+                            break;
+                    }
                     break;
-                case PAUSA:
-                    break;
+
             }
-            //switch para renderizar los eventos del juego
-            switch (estadoActual) {
-                case MENU:
-                    break;
-                case JUGANDO:
-                    break;
-                case PAUSA:
-                    break;
-            }
-            frameTime = SDL_GetTicks() - frameStart;
-            if (TICK > frameTime) {
-                SDL_Delay(TICK - frameTime);
-            }
+
         }
-
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
-
-
-        SDL_RenderPresent(renderer);
+        //switch para actualizar los eventos del juego
+        switch (estadoActual) {
+            case MENU:
+                break;
+            case JUGANDO:
+                break;
+            case PAUSA:
+                break;
+        }
+        //switch para renderizar los eventos del juego
+        switch (estadoActual) {
+            case MENU:
+                dibujarFondo(BACKGROUND, windowWidth,windowHeight,window,renderer);
+                break;
+            case JUGANDO:
+                dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
+                break;
+            case PAUSA:
+                break;
+        }
+        frameTime = SDL_GetTicks() - frameStart;
+        if (TICK > frameTime) {
+            SDL_Delay(TICK - frameTime);
+        }
     }
     free(enemigos);
     SDL_DestroyRenderer(renderer);

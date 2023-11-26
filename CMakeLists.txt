@@ -11,8 +11,6 @@ find_package(SDL2 REQUIRED)
 add_executable(proyecto_estructura main.c
         list.c
         list.h
-        Torreta.c
-        Torreta.h
 )
 
 set(SDL_IMAGE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/assets/SDL2_image-2.6.3/x86_64-w64-mingw32/include/SDL2")
