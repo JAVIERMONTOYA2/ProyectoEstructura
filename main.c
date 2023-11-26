@@ -17,8 +17,8 @@ typedef enum{
 }EstadoJuego;
 
 typedef struct {
-    float Xpos;
-    float Ypos;
+    int Xpos;
+    int Ypos;
 } Punto;
 
 typedef struct{
@@ -200,12 +200,11 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
 
         SDL_RenderPresent(renderer);
 
-
     }
     return 0;
 }
 
-int esPosicionValidaTorreta(List* listaTorretas, float x, float y) {
+int esPosicionValidaTorreta(List* listaTorretas, int x, int y){
     Torreta* curTorreta = firstList(listaTorretas);
 
     while (curTorreta != NULL) {
@@ -216,11 +215,13 @@ int esPosicionValidaTorreta(List* listaTorretas, float x, float y) {
     }
     // La posición no está ocupada.
     return 0;
+
+    // ponerle if para verificar si está en el cuadrado o no
 }
 
 // Asumí que se toman los datos del tipo y las posiciones de otro lado xd
-void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, float posicionX, float posicionY){
-
+void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer,int tipoTorreta, int posicionX, int posicionY){
+ // aquí verificar lo de esPosicionValida con el if y mierda
     int costoTorreta;
     // Voy a poner costos arbitrarios
     switch (tipoTorreta) {
@@ -273,7 +274,24 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, floa
 
     jugador->puntos -= costoTorreta;
 
-    pushFront(listaTorretas, nuevaTorreta);
+    pushBack(listaTorretas, nuevaTorreta);
+
+    SDL_Rect Rect; // esto crea un rectangulo para que se pueda apretar la torreta en un area determinada y no un pixel
+    SDL_RendererFlip Flip = SDL_FLIP_NONE; // Esto creo que hace que la torreta gire
+    Torreta* curTorreta = firstList(listaTorretas);
+
+    while (curTorreta != NULL){
+        if(curTorreta->textura != NULL){
+            curTorreta->angulo = 180;
+            Rect.x = posicionX;
+            Rect.y = posicionY;
+            Rect.w = 100;
+            Rect.h = 50;
+
+            SDL_RenderCopyEx(Renderer, curTorreta->textura, NULL, &Rect, curTorreta->angulo, NULL, Flip);
+        }
+        curTorreta = nextList(listaTorretas);
+    }
 }
 
 /*Torreta* clickEnTorreta(List* listaTorretas, float x, float y){
@@ -313,18 +331,18 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
             Enemigo *curEnemigo = firstList(listaEnemigos);
             Enemigo *enemigoADisparar = NULL;
 
-            double posX = curTorreta->coordenadas.Xpos;
-            double posY = curTorreta->coordenadas.Ypos;
+            long posX = curTorreta->coordenadas.Xpos;
+            long posY = curTorreta->coordenadas.Ypos;
 
-            double disX, disY, radio, prioridadRadio, prioridadEnemigo;
+            long disX, disY, radio, prioridadRadio, prioridadEnemigo;
 
             radio = 0;
             prioridadRadio = 0;
 
             while (curEnemigo != NULL){
 
-                double enX = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
-                double enY = curEnemigo->posicion.Ypos;
+                long enX = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
+                long enY = curEnemigo->posicion.Ypos;
                 radio = sqrt(pow(disX, 2) + pow(disY, 2));
 
                 if (curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX) {
