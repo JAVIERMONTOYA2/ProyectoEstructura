@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include "list.h"
 
+#define FPS 60
+#define TICK 1000/FPS
+
+typedef enum{
+    MENU,
+    JUGANDO,
+    PAUSA,
+}EstadoJuego;
 
 typedef struct {
     float Xpos;
@@ -418,9 +426,16 @@ int WinMain(int argc, char* argv[]) {
     SDL_Event event;
     int running = 1;
     int inSettings=0;
+    Uint32 frameStart;
+    int frameTime;
+    EstadoJuego estadoActual = MENU;
 
     while (running) {
+
+        frameTime = SDL_GetTicks();
+
         while (SDL_PollEvent(&event)) {
+            //switch de procesado de eventos
             switch (event.type) {
                 case SDL_QUIT:
                     running = 0;
@@ -472,6 +487,28 @@ int WinMain(int argc, char* argv[]) {
                     }
                     break;
             }
+            //switch para actualizar los eventos del juego
+            switch (estadoActual) {
+                case MENU:
+                    break;
+                case JUGANDO:
+                    break;
+                case PAUSA:
+                    break;
+            }
+            //switch para renderizar los eventos del juego
+            switch (estadoActual) {
+                case MENU:
+                    break;
+                case JUGANDO:
+                    break;
+                case PAUSA:
+                    break;
+            }
+            frameTime = SDL_GetTicks() - frameStart;
+            if (TICK > frameTime) {
+                SDL_Delay(TICK - frameTime);
+            }
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -481,6 +518,7 @@ int WinMain(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
     }
+    free(enemigos);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
