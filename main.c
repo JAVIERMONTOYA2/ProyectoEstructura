@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "list.h"
+#include <math.h>
 
 #define FPS 60
 #define TICK 1000/FPS
@@ -32,6 +33,7 @@ typedef struct{
     int nivel;
     int costo;
     int angulo;
+    int radio;
 } Torreta;
 
 typedef struct{
@@ -301,17 +303,53 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, floa
 }*/
 
 // Esta función solo funciona para la torreta que detecta ataques en su area
-// faltaría pasar los enemigos
-void atacarEnemigos(List* listaTorretas, Jugador* jugador, SDL_Renderer* renderer){
+void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, SDL_Renderer* renderer){
+    Torreta *curTorreta = firstList(listaTorretas);
+    if (curTorreta != NULL) {
+        if (curTorreta != NULL) {
+            Enemigo *curEnemigo = firstList(listaEnemigos);
+            Enemigo *enemigoADisparar = NULL;
 
-    Torreta* curTorreta = firstList(listaTorretas);
-    // inicializar lista de enemigos
-    // habría que definir
+            double posX = curTorreta->coordenadas.Xpos;
+            double posY = curTorreta->coordenadas.Ypos;
 
-    double torx, towy;
-    double distancia_x, distancia_y, radio, radio_detectado;
+            double disX, disY, radio, prioridadRadio, prioridadEnemigo;
 
+            radio = 0;
+            prioridadRadio = 0;
+
+            while (curEnemigo != NULL){
+
+                double enX = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
+                double enY = curEnemigo->posicion.Ypos;
+                radio = sqrt(pow(disX, 2) + pow(disY, 2));
+
+                if (curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX) {
+                    prioridadRadio = radio;
+                    prioridadEnemigo = enX;
+                    enemigoADisparar = curEnemigo;
+
+                    // Giro
+                    if (enX - posX == 0 & enY - posY > 0) {
+                        curTorreta->angulo = 90;
+                    } else if (enX - posX == 0 & enY - posY < 0) {
+                        curTorreta->angulo = -90;
+                    } else {
+                        curTorreta->angulo = atan((enY - posY) / (enX - posX)) * 180 / 3.14159265;
+                        }
+                    if (enX - posX < 0) {
+                        curTorreta->angulo += 180;
+                    }
+
+                    // Aquí debería ir updateProyectil
+                }
+                curEnemigo = nextList(listaEnemigos);
+            }
+            curTorreta = nextList(listaTorretas);
+        }
+    }
 }
+
 /*
 void cargarEnemigos(List* listaEnemigos, int ronda){
     int cantEnemigosSpawnear = 5 * ronda + 1;
