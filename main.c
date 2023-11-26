@@ -27,6 +27,7 @@ typedef struct{
 } Proyectil ;
 
 typedef struct{
+    SDL_Texture* textura;
     char* tipo;
     int dmg;
     Punto coordenadas;
@@ -306,7 +307,7 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, floa
 void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, SDL_Renderer* renderer){
     Torreta *curTorreta = firstList(listaTorretas);
     if (curTorreta != NULL) {
-        if (curTorreta != NULL) {
+        if (curTorreta->textura != NULL) {
             Enemigo *curEnemigo = firstList(listaEnemigos);
             Enemigo *enemigoADisparar = NULL;
 

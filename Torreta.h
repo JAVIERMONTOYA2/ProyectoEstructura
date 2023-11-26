@@ -1,8 +1,0 @@
-//
-// Created by bvela on 23-11-2023.
-//
-
-#ifndef PROYECTO_ESTRUCTURA_TORRETA_H
-#define PROYECTO_ESTRUCTURA_TORRETA_H
-
-#endif //PROYECTO_ESTRUCTURA_TORRETA_H
