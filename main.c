@@ -320,6 +320,9 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
             Enemigo* curEnemigo = firstList(listaEnemigos);
             Enemigo* enemigoADisparar = NULL;
 
+            double posX = curTorreta->coordenadas.Xpos;
+            double posY = curTorreta->coordenadas.Ypos;
+
             double disX, disY, radio, prioridadRadio, prioridadEnemigo;
 
             radio = 0;
@@ -327,14 +330,30 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
 
             while(curEnemigo != NULL){
 
-                double enx = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
+                double enX = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
                 double enY = curEnemigo->posicion.Ypos;
+
+
                 radio = sqrt(pow(disX, 2) + pow(disY, 2));
 
-                if(curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enx){
+                if(curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX){
                     prioridadRadio = radio;
-                    prioridadEnemigo = enx;
+                    prioridadEnemigo = enX;
                     enemigoADisparar = curEnemigo;
+
+                    // Giro
+                    if(enX - posX == 0 & enY - posY > 0){
+                        curTorreta->angulo = 90;
+                    }
+                    else if(enX - posX == 0 & enY - posY < 0){
+                        curTorreta->angulo = -90;
+                    }
+                    else{
+                        curTorreta->angulo = atan((enY- posY) / (enX - posX)) * 180 / 3.14159265;
+                    }
+                    if(enX -posX < 0){
+                        curTorreta->angulo += 180;
+                    }
 
                     // Aquí debería ir updateProyectil
 
@@ -343,6 +362,7 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
             }
         }
         curTorreta = nextList(listaTorretas);
+
     }
 }
 
