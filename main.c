@@ -2,12 +2,12 @@
 #include <SDL_image.h>
 #include <string.h>
 #include <stdio.h>
-#include <math.h>
 #include "list.h"
 
+
 typedef struct {
-    int Xpos;
-    int Ypos;
+    float Xpos;
+    float Ypos;
 } Punto;
 
 typedef struct{
@@ -18,14 +18,12 @@ typedef struct{
 } Proyectil ;
 
 typedef struct{
-    SDL_Texture* textura;
     char* tipo;
     int dmg;
     Punto coordenadas;
     int nivel;
     int costo;
     int angulo;
-    int radio;
 } Torreta;
 
 typedef struct{
@@ -194,7 +192,7 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     return 0;
 }
 
-int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
+int esPosicionValidaTorreta(List* listaTorretas, float x, float y) {
     Torreta* curTorreta = firstList(listaTorretas);
 
     while (curTorreta != NULL) {
@@ -208,7 +206,7 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
 }
 
 // Asumí que se toman los datos del tipo y las posiciones de otro lado xd
-void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY){
+void colocarTorreta(List* listaTorretas, Jugador* jugador, int tipoTorreta, float posicionX, float posicionY){
 
     int costoTorreta;
     // Voy a poner costos arbitrarios
@@ -233,13 +231,14 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     }
 
     // Creación de la torreta
-    Torreta* nuevaTorreta = malloc(sizeof(Torreta));
+    Torreta* nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
 
     // Seleccionar tipo de torreta
     switch(tipoTorreta){
         case 1:
             nuevaTorreta->tipo = "Torreta tipo 1";
             //aquí irían las stats de la torreta que aún no definimos
+
             //además de como se le asigna una textura
             break;
         case 2:
@@ -261,36 +260,19 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
 
     jugador->puntos -= costoTorreta;
 
-    pushBack(listaTorretas, nuevaTorreta);
-
-    SDL_Rect Rect; // esto crea un rectangulo para que se pueda apretar la torreta en un area determinada y no un pixel
-    SDL_RendererFlip Flip = SDL_FLIP_NONE; // Esto creo que hace que la torreta gire
-    Torreta* curTorreta = firstList(listaTorretas);
-
-    while (curTorreta != NULL){
-        if(curTorreta->textura != NULL){
-            curTorreta->angulo = 180;
-            Rect.x = posicionX;
-            Rect.y = posicionY;
-            //Rect.w = ancho de la torreta
-            //Rect.h = alto de la torreta
-
-            SDL_RenderCopyEx(Renderer, curTorreta->textura, NULL, &Rect, curTorreta->angulo, NULL, Flip);
-        }
-        curTorreta = nextList(listaTorretas);
-    }
+    pushFront(listaTorretas, nuevaTorreta);
 }
 
 /*Torreta* clickEnTorreta(List* listaTorretas, float x, float y){
-    Torreta* curTorreta = (firstList(listaTorretas);
+    Torreta* curTorreta = (Torreta*)firstList(listaTorretas);
 
     while (curTorreta != NULL) {
-        if (curTorreta->coordenadas.Xpos <= x && x <= curTorreta->coordenadas.Xpos &&
-            curTorreta->coordenadas.Ypos <= y && y <= curTorreta->coordenadas.Ypos){
+        if (curTorreta->coordenadas.Xpos <= x && x <= curTorreta->coordenadas.Xpos + BLOCK_WIDTH &&
+            curTorreta->coordenadas.Ypos <= y && y <= curTorreta->coordenadas.Ypos + BLOCK_HEIGHT) {
             return curTorreta;
         }
 
-        curTorreta = nextList(listaTorretas);
+        curTorreta = (Torreta*)nextList(listaTorretas);
     }
 
     return NULL;
@@ -311,72 +293,91 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
 }*/
 
 // Esta función solo funciona para la torreta que detecta ataques en su area
-void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, SDL_Renderer* renderer){
+// faltaría pasar los enemigos
+void atacarEnemigos(List* listaTorretas, Jugador* jugador, SDL_Renderer* renderer){
 
     Torreta* curTorreta = firstList(listaTorretas);
+    // inicializar lista de enemigos
+    // habría que definir
 
-    if (curTorreta != NULL){
-        if (curTorreta != NULL){
-            Enemigo* curEnemigo = firstList(listaEnemigos);
-            Enemigo* enemigoADisparar = NULL;
+    double torx, towy;
+    double distancia_x, distancia_y, radio, radio_detectado;
 
-            double posX = curTorreta->coordenadas.Xpos;
-            double posY = curTorreta->coordenadas.Ypos;
-
-            double disX, disY, radio, prioridadRadio, prioridadEnemigo;
-
-            radio = 0;
-            prioridadRadio = 0;
-
-            while(curEnemigo != NULL){
-
-                double enX = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
-                double enY = curEnemigo->posicion.Ypos;
-
-
-                radio = sqrt(pow(disX, 2) + pow(disY, 2));
-
-                if(curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX){
-                    prioridadRadio = radio;
-                    prioridadEnemigo = enX;
-                    enemigoADisparar = curEnemigo;
-
-                    // Giro
-                    if(enX - posX == 0 & enY - posY > 0){
-                        curTorreta->angulo = 90;
-                    }
-                    else if(enX - posX == 0 & enY - posY < 0){
-                        curTorreta->angulo = -90;
-                    }
-                    else{
-                        curTorreta->angulo = atan((enY- posY) / (enX - posX)) * 180 / 3.14159265;
-                    }
-                    if(enX -posX < 0){
-                        curTorreta->angulo += 180;
-                    }
-
-                    // Aquí debería ir updateProyectil
-
-                }
-                curEnemigo = nextList(listaEnemigos);
+}
+/*
+void cargarEnemigos(List* listaEnemigos, int ronda){
+    int cantEnemigosSpawnear = 5 * ronda + 1;
+    int i = 0;
+    while (i < cantEnemigosSpawnear){
+        Enemigo* nuevoEnemigo = (Enemigo*)malloc(sizeof(Enemigo));
+        if (ronda == 1){
+            nuevoEnemigo->tipo = "a";
+            nuevoEnemigo->velocidad = 3;
+            nuevoEnemigo->vida = 3;
+            nuevoEnemigo->daño = 3;
+            nuevoEnemigo->premio = 100;
+        } else if (ronda == 2){
+            nuevoEnemigo->tipo = "b";
+            nuevoEnemigo->velocidad = 5;
+            nuevoEnemigo->vida = 5;
+            nuevoEnemigo->daño = 5;
+            nuevoEnemigo->premio = 200;
+        } else if (ronda == 3){
+            nuevoEnemigo->tipo = "c";
+            nuevoEnemigo->velocidad = 1;
+            nuevoEnemigo->vida = 20;
+            nuevoEnemigo->daño = 20;
+            nuevoEnemigo->premio = 500;
+        } else if (ronda == 4){
+            if (i <= 5){
+                nuevoEnemigo->tipo = "a";
+                nuevoEnemigo->velocidad = 3;
+                nuevoEnemigo->vida = 3;
+                nuevoEnemigo->daño = 3;
+                nuevoEnemigo->premio = 100;
+            } else if (i <= 10 && i > 5){
+                nuevoEnemigo->tipo = "b";
+                nuevoEnemigo->velocidad = 5;
+                nuevoEnemigo->vida = 5;
+                nuevoEnemigo->daño = 5;
+                nuevoEnemigo->premio = 200;
+            } else {
+                nuevoEnemigo->tipo = "c";
+                nuevoEnemigo->velocidad = 1;
+                nuevoEnemigo->vida = 20;
+                nuevoEnemigo->daño = 20;
+                nuevoEnemigo->premio = 500;
             }
         }
-        curTorreta = nextList(listaTorretas);
-
+        pushBack(listaEnemigos, nuevoEnemigo);
+        i++;
     }
 }
+
+void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
+    Enemigo* tempEnemigo = firstList(listaEnemigos);
+    int i=0;
+    while (tempEnemigo != NULL){
+        arregloEnemigos[i] = *tempEnemigo;
+        tempEnemigo = nextList(listaEnemigos);
+        popFront(listaEnemigos);
+        i++;
+    }
+
+}*/
 
 int WinMain(int argc, char* argv[]) {
 
     List* listaTorretas = createList();
     List* listaEnemigos = createList();
+    Enemigo* enemigos = malloc(sizeof(Enemigo) * 100);
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Error al inicializar SDL: %s", SDL_GetError());
         return 1;
     }
 
-    SDL_Surface* bgSurface = IMG_Load("../assets/Imagenes/bgingame.png");
+    SDL_Surface* bgSurface = IMG_Load("../assets/Imagenes/bg.png");
     if (!bgSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return 1;
@@ -408,14 +409,15 @@ int WinMain(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
 
+
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
     SDL_FreeSurface(bgSurface);
 
+
     SDL_Event event;
     int running = 1;
     int inSettings=0;
-    int X,Y;
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -429,7 +431,6 @@ int WinMain(int argc, char* argv[]) {
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    // si apretas una posición, te dice lo que apretaste, en consola dice
                     if (event.button.button == SDL_BUTTON_LEFT) {
                         int mouseX = event.button.x;
                         int mouseY = event.button.y;
@@ -438,8 +439,6 @@ int WinMain(int argc, char* argv[]) {
                         int buttonHeight = windowHeight * 0.08;
                         int buttonX = windowWidth * (0.55 - 0.08);
                         int buttonY = windowHeight * (0.5 - 0.05);
-                        SDL_GetMouseState(&X,&Y);
-                        SDL_Log("X: %d Y: %d",X,Y);
 
                         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
 
