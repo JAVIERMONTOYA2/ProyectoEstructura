@@ -206,20 +206,31 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
 }
 
 int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
-    int rangos[][4] = {
-            {1200, 1300, 285, 325},
-            {681, 781, 221, 271},
-            {584, 684, 506, 556},
-            {333, 433, 445, 495},
-            {735, 835, 844, 894},
-            {1189, 1289, 749, 799},
-            {1486, 1586, 868, 918}
-    };
 
-    for (int i = 0; i < sizeof(rangos) / sizeof(rangos[0]); i++) {
-        if (x >= rangos[i][0] && x <= rangos[i][1] && y >= rangos[i][2] && y <= rangos[i][3]) {
-            return 1;
+    Torreta* tempTorreta = firstList(listaTorretas);
+
+    while (tempTorreta != NULL) {
+        if (tempTorreta->coordenadas.Xpos == x && tempTorreta->coordenadas.Ypos == y) {
+            // Ya hay una torreta en esa posición
+            return 0;
         }
+        tempTorreta = nextList(listaTorretas);
+    }
+
+    if (x >= 1200 && x <= 1300 && y >= 285 && y <= 325) {
+        return 1;
+    } else if (x >= 681 && x <= 781 && y >= 221 && y <= 271) {
+        return 1;
+    } else if (x >= 584 && x <= 684 && y >= 506 && y <= 556) {
+        return 1;
+    } else if (x >= 333 && x <= 433 && y >= 445 && y <= 495) {
+        return 1;
+    } else if (x >= 735 && x <= 835 && y >= 844 && y <= 894) {
+        return 1;
+    } else if (x >= 1189 && x <= 1289 && y >= 749 && y <= 799) {
+        return 1;
+    } else if (x >= 1486 && x <= 1586 && y >= 868 && y <= 918) {
+        return 1;
     }
 
     // La posición no está en ningún rango permitido
@@ -229,79 +240,57 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
 // Asumí que se toman los datos del tipo y las posiciones de otro lado xd
 void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer,int tipoTorreta, int posicionX, int posicionY){
 
- // aquí verificar lo de esPosicionValida con el if y mierda
-    int costoTorreta;
-    // Voy a poner costos arbitrarios
-    switch (tipoTorreta) {
-        case 1:
-            costoTorreta = 25;
-            break;
-        case 2:
-            costoTorreta = 50;
-            break;
-        case 3:
-            costoTorreta = 75;
-            break;
-        default:
-            // si el tipo de torreta no coincide
-            return;
-    }
-
-    if (jugador->puntos < costoTorreta) {
-        // jugador no tiene suficiente dinero
-        return;
-    }
-
-    // Creación de la torreta
-    Torreta* nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
-
-    // Seleccionar tipo de torreta
-    switch(tipoTorreta){
-        case 1:
-            nuevaTorreta->tipo = "Torreta tipo 1";
-            nuevaTorreta->textura = IMG_LoadTexture(Renderer, "../assets/Imagenes/archer.png");
-
-
-            break;
-        case 2:
-            nuevaTorreta->tipo = "Torreta tipo 2";
-            nuevaTorreta->textura = IMG_LoadTexture(Renderer, "../assets/Imagenes/archer.png");
-            break;
-        case 3:
-            nuevaTorreta->tipo = "Torreta tipo 3";
-            nuevaTorreta->textura = IMG_LoadTexture(Renderer, "../assets/Imagenes/archer.png");
-            break;
-        default:
-            //si el tipo de torreta no coincide
-            free(nuevaTorreta);
-            return;
-    }
-
-    nuevaTorreta->coordenadas.Xpos = posicionX;
-    nuevaTorreta->coordenadas.Ypos = posicionY;
-
-    nuevaTorreta->costo = costoTorreta;
-
-    jugador->puntos -= costoTorreta;
-
-    pushBack(listaTorretas, nuevaTorreta);
-
-    SDL_Rect Rect; // esto crea un rectangulo para que se pueda apretar la torreta en un area determinada y no un pixel
-    SDL_RendererFlip Flip = SDL_FLIP_NONE; // Esto creo que hace que la torreta gire
-    Torreta* curTorreta = firstList(listaTorretas);
-
-    while (curTorreta != NULL){
-        if(curTorreta->textura != NULL){
-            curTorreta->angulo = 180;
-            Rect.x = posicionX;
-            Rect.y = posicionY;
-            Rect.w = 100;
-            Rect.h = 50;
-
-            SDL_RenderCopyEx(Renderer, curTorreta->textura, NULL, &Rect, curTorreta->angulo, NULL, Flip);
+        int costoTorreta;
+        // Voy a poner costos arbitrarios
+        switch (tipoTorreta) {
+            case 1:
+                costoTorreta = 25;
+                break;
+            case 2:
+                costoTorreta = 50;
+                break;
+            case 3:
+                costoTorreta = 75;
+                break;
+            default:
+                // si el tipo de torreta no coincide
+                return;
         }
-        curTorreta = nextList(listaTorretas);
-    }
+
+        if (jugador->puntos < costoTorreta) {
+            // jugador no tiene suficiente dinero
+            return;
+        }
+
+        // Creación de la torreta
+        Torreta* nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
+
+        // Seleccionar tipo de torreta
+        switch(tipoTorreta){
+            case 1:
+                nuevaTorreta->tipo = "1";
+                break;
+            case 2:
+                nuevaTorreta->tipo = "2";
+                break;
+            case 3:
+                nuevaTorreta->tipo = "3";
+                break;
+            default:
+                //si el tipo de torreta no coincide
+                free(nuevaTorreta);
+                return;
+        }
+
+        nuevaTorreta->coordenadas.Xpos = posicionX;
+        nuevaTorreta->coordenadas.Ypos = posicionY;
+
+        nuevaTorreta->costo = costoTorreta;
+
+        jugador->puntos -= costoTorreta;
+
+        pushBack(listaTorretas, nuevaTorreta);
+
 }
 
 
@@ -422,10 +411,11 @@ int WinMain(int argc, char* argv[]) {
     List* listaTorretas = createList();
     List* listaEnemigos = createList();
     Enemigo* enemigos = malloc(sizeof(Enemigo) * 100);
+    Torreta* tempTorreta = firstList(listaTorretas);
 
     Jugador jugador;  // Creas una instancia de la estructura Jugador
     jugador.vida = 100;  // Puedes ajustar este valor según tus necesidades iniciales
-    jugador.puntos = 0;
+    jugador.puntos = 1000;
     jugador.ronda = 1;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -549,7 +539,7 @@ int WinMain(int argc, char* argv[]) {
                                     int juegoMouseX = mouseX;
                                     int juegoMouseY = mouseY;
 
-                                    if (!esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY)){
+                                    if (esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY)){
                                         colocarTorreta(listaTorretas, &jugador, renderer, 1, juegoMouseX, juegoMouseY);
                                     }
                                 }
@@ -575,6 +565,7 @@ int WinMain(int argc, char* argv[]) {
             case MENU:
                 break;
             case JUGANDO:
+                tempTorreta = firstList(listaTorretas);
                 break;
             case PAUSA:
                 break;
@@ -586,6 +577,10 @@ int WinMain(int argc, char* argv[]) {
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
+                while (tempTorreta != NULL){
+                    dibujarImagen(renderer, TORRETA1, tempTorreta->coordenadas.Xpos, tempTorreta->coordenadas.Ypos);
+                    tempTorreta = nextList(listaTorretas);
+                }
                 break;
             case PAUSA:
                 break;
@@ -594,6 +589,10 @@ int WinMain(int argc, char* argv[]) {
         if (TICK > frameTime) {
             SDL_Delay(TICK - frameTime);
         }
+    }
+    while (tempTorreta != NULL){
+        free(tempTorreta);
+        tempTorreta = nextList(listaTorretas);
     }
     free(enemigos);
     SDL_DestroyRenderer(renderer);
