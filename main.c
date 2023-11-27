@@ -9,6 +9,7 @@
 #define TICK 1000/FPS
 #define BACKGROUND "../assets/Imagenes/bg.png"
 #define BACKGROUNDINGAME "../assets/Imagenes/bgingame.png"
+#define TORRETA1 "../assets/Imagenes/archer.png"
 
 typedef enum{
     MENU,
@@ -204,23 +205,30 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     return 0;
 }
 
-int esPosicionValidaTorreta(List* listaTorretas, int x, int y){
-    Torreta* curTorreta = firstList(listaTorretas);
+int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
+    int rangos[][4] = {
+            {1200, 1300, 285, 325},
+            {681, 781, 221, 271},
+            {584, 684, 506, 556},
+            {333, 433, 445, 495},
+            {735, 835, 844, 894},
+            {1189, 1289, 749, 799},
+            {1486, 1586, 868, 918}
+    };
 
-    while (curTorreta != NULL) {
-        if (curTorreta->coordenadas.Xpos == x && curTorreta->coordenadas.Ypos == y){
-            return 1; // La posición está ocupada.
+    for (int i = 0; i < sizeof(rangos) / sizeof(rangos[0]); i++) {
+        if (x >= rangos[i][0] && x <= rangos[i][1] && y >= rangos[i][2] && y <= rangos[i][3]) {
+            return 1;
         }
-        curTorreta = nextList(listaTorretas);
     }
-    // La posición no está ocupada.
-    return 0;
 
-    // ponerle if para verificar si está en el cuadrado o no
+    // La posición no está en ningún rango permitido
+    return 0;
 }
 
 // Asumí que se toman los datos del tipo y las posiciones de otro lado xd
 void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer,int tipoTorreta, int posicionX, int posicionY){
+
  // aquí verificar lo de esPosicionValida con el if y mierda
     int costoTorreta;
     // Voy a poner costos arbitrarios
@@ -251,15 +259,17 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     switch(tipoTorreta){
         case 1:
             nuevaTorreta->tipo = "Torreta tipo 1";
-            //aquí irían las stats de la torreta que aún no definimos
+            nuevaTorreta->textura = IMG_LoadTexture(Renderer, "../assets/Imagenes/archer.png");
 
-            //además de como se le asigna una textura
+
             break;
         case 2:
             nuevaTorreta->tipo = "Torreta tipo 2";
+            nuevaTorreta->textura = IMG_LoadTexture(Renderer, "../assets/Imagenes/archer.png");
             break;
         case 3:
             nuevaTorreta->tipo = "Torreta tipo 3";
+            nuevaTorreta->textura = IMG_LoadTexture(Renderer, "../assets/Imagenes/archer.png");
             break;
         default:
             //si el tipo de torreta no coincide
@@ -294,34 +304,6 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     }
 }
 
-/*Torreta* clickEnTorreta(List* listaTorretas, float x, float y){
-    Torreta* curTorreta = (Torreta*)firstList(listaTorretas);
-
-    while (curTorreta != NULL) {
-        if (curTorreta->coordenadas.Xpos <= x && x <= curTorreta->coordenadas.Xpos + BLOCK_WIDTH &&
-            curTorreta->coordenadas.Ypos <= y && y <= curTorreta->coordenadas.Ypos + BLOCK_HEIGHT) {
-            return curTorreta;
-        }
-
-        curTorreta = (Torreta*)nextList(listaTorretas);
-    }
-
-    return NULL;
-}*/
-
-/*void eliminarTorreta(List* listaTorretas, Jugador* jugador, float x, float y){
-    Torreta* curTorreta = firstList(listaTorretas);
-
-    while (curTorreta != NULL){
-        if (curTorreta->coordenadas.Xpos == x && curTorreta->coordenadas.Ypos == y){
-            jugador->puntos += curTorreta->costo;
-            popCurrent(listaTorretas);
-            free(curTorreta);
-            return;
-        }
-        curTorreta = (Torreta*)nextList(listaTorretas);
-    }
-}*/
 
 // Esta función solo funciona para la torreta que detecta ataques en su area
 void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, SDL_Renderer* renderer){
@@ -341,8 +323,8 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
 
             while (curEnemigo != NULL){
 
-                long enX = curEnemigo->posicion.Xpos; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
-                long enY = curEnemigo->posicion.Ypos;
+                long enX = curEnemigo->posicion.Xpos + 100; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
+                long enY = curEnemigo->posicion.Ypos + 50;
                 radio = sqrt(pow(disX, 2) + pow(disY, 2));
 
                 if (curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX) {
@@ -440,6 +422,11 @@ int WinMain(int argc, char* argv[]) {
     List* listaTorretas = createList();
     List* listaEnemigos = createList();
     Enemigo* enemigos = malloc(sizeof(Enemigo) * 100);
+
+    Jugador jugador;  // Creas una instancia de la estructura Jugador
+    jugador.vida = 100;  // Puedes ajustar este valor según tus necesidades iniciales
+    jugador.puntos = 0;
+    jugador.ronda = 1;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Error al inicializar SDL: %s", SDL_GetError());
@@ -552,6 +539,23 @@ int WinMain(int argc, char* argv[]) {
                     break;
                 case JUGANDO:
                     switch (event.type) {
+                        case SDL_MOUSEBUTTONDOWN:
+                            if (event.button.button == SDL_BUTTON_LEFT){
+                                int mouseX = event.button.x;
+                                int mouseY = event.button.y;
+
+                                if (mouseX >= 0 && mouseX <= windowWidth && mouseY >= 0 && mouseY <= windowHeight){
+
+                                    int juegoMouseX = mouseX;
+                                    int juegoMouseY = mouseY;
+
+                                    if (!esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY)){
+                                        colocarTorreta(listaTorretas, &jugador, renderer, 1, juegoMouseX, juegoMouseY);
+                                    }
+                                }
+                            }
+                            break;
+
                         case SDL_QUIT:
                             running = 0;
                             break;
