@@ -8,7 +8,7 @@
 #define FPS 60
 #define TICK 1000/FPS
 #define BACKGROUND "../assets/Imagenes/bg.png"
-#define BACKGROUNDINGAME "../assets/Imagenes/bgingame.png"
+#define BACKGROUNDINGAME "../assets/Imagenes/bgingame_2.png"
 #define TORRETA1 "../assets/Imagenes/archer.png"
 
 typedef enum{
