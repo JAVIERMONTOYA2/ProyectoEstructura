@@ -101,6 +101,19 @@ void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
     SDL_DestroyTexture(imageTexture);
 }
 
+void dibujarTorreta(List* listaTorretas, SDL_Renderer* renderer) {
+    Torreta* tempTorreta = firstList(listaTorretas);
+    if (tempTorreta == NULL){
+        return;
+    }
+    while (tempTorreta != NULL) {
+        if (tempTorreta->textura != NULL) {
+            dibujarImagen(renderer, TORRETA1, tempTorreta->coordenadas.Xpos, tempTorreta->coordenadas.Ypos);
+        }
+        tempTorreta = nextList(listaTorretas);
+    }
+}
+
 int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     int running = 1;
     SDL_Event event;
@@ -207,10 +220,12 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
 
 int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
 
+
     Torreta* tempTorreta = firstList(listaTorretas);
 
     while (tempTorreta != NULL) {
         if (tempTorreta->coordenadas.Xpos == x && tempTorreta->coordenadas.Ypos == y) {
+            SDL_Log("Posición inválida torre");
             // Ya hay una torreta en esa posición
             return 0;
         }
@@ -218,22 +233,30 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
     }
 
     if (x >= 1200 && x <= 1300 && y >= 285 && y <= 325) {
+        SDL_Log("Posición válida 1");
         return 1;
     } else if (x >= 681 && x <= 781 && y >= 221 && y <= 271) {
+        SDL_Log("Posición válida 2");
         return 1;
     } else if (x >= 584 && x <= 684 && y >= 506 && y <= 556) {
+        SDL_Log("Posición válida 3");
         return 1;
     } else if (x >= 333 && x <= 433 && y >= 445 && y <= 495) {
+        SDL_Log("Posición válida 4");
         return 1;
     } else if (x >= 735 && x <= 835 && y >= 844 && y <= 894) {
+        SDL_Log("Posición válida 5");
         return 1;
     } else if (x >= 1189 && x <= 1289 && y >= 749 && y <= 799) {
+        SDL_Log("Posición válida 6");
         return 1;
     } else if (x >= 1486 && x <= 1586 && y >= 868 && y <= 918) {
+        SDL_Log("Posición válida 7");
         return 1;
     }
 
     // La posición no está en ningún rango permitido
+    SDL_Log("Posición inválida lugar");
     return 0;
 }
 
@@ -565,7 +588,6 @@ int WinMain(int argc, char* argv[]) {
             case MENU:
                 break;
             case JUGANDO:
-                tempTorreta = firstList(listaTorretas);
                 break;
             case PAUSA:
                 break;
@@ -577,10 +599,6 @@ int WinMain(int argc, char* argv[]) {
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
-                while (tempTorreta != NULL){
-                    dibujarImagen(renderer, TORRETA1, tempTorreta->coordenadas.Xpos, tempTorreta->coordenadas.Ypos);
-                    tempTorreta = nextList(listaTorretas);
-                }
                 break;
             case PAUSA:
                 break;
