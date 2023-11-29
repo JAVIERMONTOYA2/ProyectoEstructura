@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "list.h"
 #include <math.h>
+#include <SDL_ttf.h>
 
 #define FPS 60
 #define TICK 1000/FPS
