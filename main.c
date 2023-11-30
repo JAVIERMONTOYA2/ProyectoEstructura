@@ -56,6 +56,113 @@ typedef struct{
     int ronda;
 } Jugador;
 
+const char *frases[] = {
+        "El cuidado del medio ambiente es responsabilidad de todos",
+        "Reducir, reutilizar y reciclar: claves para conservar nuestro entorno",
+        "La naturaleza nos brinda vida, cuidémosla con amor",
+        "Cada accion cuenta en la proteccion del medio ambiente",
+        "La biodiversidad es esencial para el equilibrio de nuestro planeta",
+        "El cambio climatico es una realidad que debemos enfrentar juntos",
+        "Fomentar la educacion ambiental es clave para un futuro sostenible",
+        "La contaminacion afecta a todos, tomemos medidas para reducirla",
+        "Los recursos naturales son limitados, debemos usarlos con prudencia",
+        "Las energias renovables son la clave para un futuro más limpio",
+        "Plantar arboles es una forma efectiva de combatir la deforestacion",
+        "Cuidar los oceanos es fundamental para preservar la vida marina",
+        "Las pequeñas acciones diarias marcan la diferencia en la conservacion ambiental",
+        "El consumo responsable es un paso importante hacia la sostenibilidad",
+        "Apostar por la movilidad sostenible reduce la huella de carbono",
+        "La conservacion del agua es crucial para la supervivencia de nuestro planeta",
+        "Los ecosistemas saludables son fundamentales para nuestra existencia",
+        "La contaminacion del aire afecta la salud de todos, actuemos para reducirla",
+        "La proteccion de la fauna silvestre es esencial para mantener el equilibrio natural",
+        "La agricultura sostenible garantiza la seguridad alimentaria a largo plazo",
+        "La colaboracion global es necesaria para enfrentar los desafios ambientales",
+        "Los plasticos de un solo uso dañan gravemente el medio ambiente",
+        "La conservacion de los bosques es vital para contrarrestar el cambio climatico",
+        "Las energías limpias son la clave para un futuro libre de emisiones",
+        "La responsabilidad corporativa es crucial en la protección del entorno",
+        "Reducir el derroche de alimentos es una forma de cuidar el planeta",
+        "Las acciones locales tienen un impacto global en la preservación ambiental",
+        "La sensibilizacion sobre el cuidado del medio ambiente es fundamental",
+        "La reforestacion es una herramienta efectiva en la lucha contra la degradacion del suelo",
+        "La conservacion de la capa de ozono es esencial para proteger la vida en la Tierra",
+        "La gestion adecuada de residuos minimiza el impacto en el medio ambiente",
+        "La preservacion de los humedales es crucial para la biodiversidad",
+        "El ecoturismo contribuye a la conservacion de áreas naturales",
+        "El cuidado de los polinizadores es vital para la produccion de alimentos",
+        "La eficiencia energetica es clave para reducir el consumo de recursos",
+        "La proteccion de los hábitats naturales es una prioridad para la conservacion",
+        "La sostenibilidad debe ser parte integral de nuestras decisiones diarias",
+        "La reduccion de emisiones de gases de efecto invernadero es urgente",
+        "La proteccion de los arrecifes de coral es esencial para la vida marina",
+        "La transicion hacia una economia circular minimiza el desperdicio",
+        "La conservacion de la fauna en peligro de extinción es una responsabilidad compartida",
+        "El uso responsable de la tierra preserva su fertilidad a largo plazo",
+        "La educacion ambiental desde temprana edad crea conciencia sobre la importancia de la naturaleza",
+        "El respeto por la biodiversidad garantiza un ecosistema equilibrado",
+        "Las energías limpias ofrecen soluciones a los problemas climaticos",
+        "La conservacion de los suelos evita la erosión y pérdida de nutrientes",
+        "La preservacion de los glaciares es crucial para el equilibrio hidrico",
+        "La adopcion de habitos ecoamigables es clave para el futuro del planeta",
+        "La cooperación internacional es esencial para abordar problemas ambientales globales",
+        "El amor y cuidado por la Tierra son la base de un futuro sostenible para las generaciones venideras"
+};
+
+void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto) {
+    int indice_frase = rand() % 50;
+    SDL_Color color = { 0, 0, 0, 255 };
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, frases[indice_frase], color);
+
+    // Verifica si hay error al crear la superficie
+    if (!textSurface) {
+        SDL_Log("Error al renderizar la superficie del texto: %s", TTF_GetError());
+        return;
+    }
+
+    // Calcula el ancho y alto del texto
+    int textWidth = textSurface->w;
+    int textHeight = textSurface->h;
+
+    // Define el tamaño máximo del texto permitido (80% del ancho de la ventana)
+    int maxWidth = ventana_ancho * 0.8;
+
+    // Si el texto es demasiado ancho, calcula la escala de la fuente para ajustarlo
+    float scale = 1.0;
+    if (textWidth > maxWidth) {
+        scale = (float)maxWidth / textWidth;
+        textWidth = maxWidth;
+        textHeight = textHeight * scale;
+    }
+
+    // Crea una textura desde la superficie del texto utilizando la escala calculada
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (!textTexture) {
+        SDL_Log("Error al crear la textura del texto: %s", SDL_GetError());
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+
+    // Calcula la posición para centrar el texto en la ventana
+    int x = (ventana_ancho - textWidth) / 2;
+    int y = (ventana_alto - textHeight) / 2;
+
+    // Define el rectángulo que representa el área donde se mostrará el texto
+    SDL_Rect destRect = { x, y, textWidth, textHeight };
+
+
+    // Renderiza la textura del texto en la ventana
+    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
+
+    // Libera la textura y la superficie del texto
+    SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(textSurface);
+
+    // Actualiza la ventana con el texto renderizado
+    SDL_RenderPresent(renderer);
+}
+
+
 
 //Esta funcion como dice su nombre dibuja el fondo ya sea del menu o del juego
 void dibujarFondo(char*nombre,int x,int y,SDL_Window* window,SDL_Renderer* renderer) {
@@ -504,6 +611,17 @@ int WinMain(int argc, char* argv[]) {
     jugador.puntos = 1000;
     jugador.ronda = 1;
 
+    if (TTF_Init() != 0) {
+        SDL_Log("Error al inicializar SDL_ttf: %s", TTF_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    TTF_Font* fuente = TTF_OpenFont("../assets/Fuentes/Minecraft.ttf", 50);
+    if (!fuente) {
+        SDL_Log("Error al cargar la fuente: %s", TTF_GetError());
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Error al inicializar SDL: %s", SDL_GetError());
         return 1;
@@ -681,6 +799,7 @@ int WinMain(int argc, char* argv[]) {
         switch (estadoActual) {
             case MENU:
                 dibujarFondo(BACKGROUND, windowWidth,windowHeight,window,renderer);
+                //dibujarFraseAleatoria(renderer, fuente, windowWidth, windowHeight);
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
