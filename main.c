@@ -56,6 +56,7 @@ typedef struct{
     int ronda;
 } Jugador;
 
+
 //Esta funcion como dice su nombre dibuja el fondo ya sea del menu o del juego
 void dibujarFondo(char*nombre,int x,int y,SDL_Window* window,SDL_Renderer* renderer) {
     SDL_Surface* bgSurface = IMG_Load(nombre);
@@ -85,12 +86,16 @@ void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
         return;
     }
+
     SDL_Texture* imageTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
     if (!imageTexture) {
         SDL_Log("Error: SDL_CreateTextureFromSurface() ha fallado: %s", SDL_GetError());
+        SDL_FreeSurface(imageSurface);
         return;
     }
+
     SDL_FreeSurface(imageSurface);
+
     int width, height;
     SDL_QueryTexture(imageTexture, NULL, NULL, &width, &height);
     SDL_Rect destino;
@@ -98,7 +103,9 @@ void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
     destino.y = y;
     destino.w = width;
     destino.h = height;
+
     SDL_RenderCopy(renderer, imageTexture, NULL, &destino);
+
     SDL_DestroyTexture(imageTexture);
 }
 
@@ -221,7 +228,6 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
 
 int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
 
-
     Torreta* tempTorreta = firstList(listaTorretas);
 
     while (tempTorreta != NULL) {
@@ -233,25 +239,25 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
         tempTorreta = nextList(listaTorretas);
     }
 
-    if (x >= 1200 && x <= 1300 && y >= 285 && y <= 325) {
+    if (x >= 604 && x <= 708 && y >= 233 && y <= 276) {
         SDL_Log("Posición válida 1");
         return 1;
-    } else if (x >= 681 && x <= 781 && y >= 221 && y <= 271) {
+    } else if (x >= 1240 && x <= 1345 && y >= 244 && y <= 289) {
         SDL_Log("Posición válida 2");
         return 1;
-    } else if (x >= 584 && x <= 684 && y >= 506 && y <= 556) {
+    } else if (x >= 295 && x <= 400 && y >= 372 && y <= 415) {
         SDL_Log("Posición válida 3");
         return 1;
-    } else if (x >= 333 && x <= 433 && y >= 445 && y <= 495) {
+    } else if (x >= 609 && x <= 734 && y >= 464 && y <= 520) {
         SDL_Log("Posición válida 4");
         return 1;
-    } else if (x >= 735 && x <= 835 && y >= 844 && y <= 894) {
+    } else if (x >= 669 && x <= 802 && y >= 928 && y <= 976) {
         SDL_Log("Posición válida 5");
         return 1;
-    } else if (x >= 1189 && x <= 1289 && y >= 749 && y <= 799) {
+    } else if (x >= 1270 && x <= 1411 && y >= 671 && y <= 724) {
         SDL_Log("Posición válida 6");
         return 1;
-    } else if (x >= 1486 && x <= 1586 && y >= 868 && y <= 918) {
+    } else if (x >= 1651 && x <= 1805 && y >= 942 && y <= 990) {
         SDL_Log("Posición válida 7");
         return 1;
     }
@@ -261,61 +267,117 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
     return 0;
 }
 
-// Asumí que se toman los datos del tipo y las posiciones de otro lado xd
-void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer,int tipoTorreta, int posicionX, int posicionY){
+void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY) {
+    int costoTorreta;
 
-        int costoTorreta;
-        // Voy a poner costos arbitrarios
-        switch (tipoTorreta) {
-            case 1:
-                costoTorreta = 25;
-                break;
-            case 2:
-                costoTorreta = 50;
-                break;
-            case 3:
-                costoTorreta = 75;
-                break;
-            default:
-                // si el tipo de torreta no coincide
-                return;
-        }
+    costoTorreta = 25;  // Costo arbitrario según el tipo
 
-        if (jugador->puntos < costoTorreta) {
-            // jugador no tiene suficiente dinero
-            return;
-        }
+    if (jugador->puntos < costoTorreta) {
+        // Jugador no tiene suficientes puntos
+        return;
+    }
 
-        // Creación de la torreta
-        Torreta* nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
+    // Verificar si la posición es válida
+    if (!esPosicionValidaTorreta(listaTorretas, posicionX, posicionY)) {
+        // Posición inválida
+        return;
+    }
 
-        // Seleccionar tipo de torreta
-        switch(tipoTorreta){
-            case 1:
-                nuevaTorreta->tipo = "1";
-                break;
-            case 2:
-                nuevaTorreta->tipo = "2";
-                break;
-            case 3:
-                nuevaTorreta->tipo = "3";
-                break;
-            default:
-                //si el tipo de torreta no coincide
-                free(nuevaTorreta);
-                return;
-        }
+    // Creación y asignación de la torreta
+    Torreta *nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
+    nuevaTorreta->coordenadas.Xpos = posicionX;
+    nuevaTorreta->coordenadas.Ypos = posicionY;
+    nuevaTorreta->costo = costoTorreta;
 
-        nuevaTorreta->coordenadas.Xpos = posicionX;
-        nuevaTorreta->coordenadas.Ypos = posicionY;
+    jugador->puntos -= costoTorreta;
 
-        nuevaTorreta->costo = costoTorreta;
+    // Agregar la torreta a la lista
+    pushFront(listaTorretas, nuevaTorreta);
 
-        jugador->puntos -= costoTorreta;
+    // Verificar si las coordenadas se han guardado correctamente
+    Torreta* torretaVerificacion = firstList(listaTorretas);
+    if (torretaVerificacion != NULL) {
+        SDL_Log("Coordenadas de la torreta en la lista - X: %d, Y: %d", torretaVerificacion->coordenadas.Xpos, torretaVerificacion->coordenadas.Ypos);
+    } else {
+        SDL_Log("Error: La torreta no se ha agregado correctamente a la lista.");
+    }
 
-        pushBack(listaTorretas, nuevaTorreta);
-
+    // Cambiar el código para dibujar la torreta según sus coordenadas reales
+    dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
 }
+
+
+
+
+// Asumí que se toman los datos del tipo y las posiciones de otro lado xd
+/*void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY) {
+    int costoTorreta;
+
+    // Voy a poner costos arbitrarios
+    switch (tipoTorreta) {
+        case 1:
+            costoTorreta = 25;
+            break;
+        case 2:
+            costoTorreta = 50;
+            break;
+        case 3:
+            costoTorreta = 75;
+            break;
+        default:
+            // si el tipo de torreta no coincide
+            return;
+    }
+
+    if (jugador->puntos < costoTorreta) {
+        // jugador no tiene suficiente dinero
+        return;
+    }
+
+    // Creación de la torreta
+    Torreta* nuevaTorreta = malloc(sizeof(Torreta));
+
+    // Seleccionar tipo de torreta
+    switch (tipoTorreta) {
+        case 1:
+            nuevaTorreta->tipo = "1";
+            break;
+        case 2:
+            nuevaTorreta->tipo = "2";
+            break;
+        case 3:
+            nuevaTorreta->tipo = "3";
+            break;
+        default:
+            //si el tipo de torreta no coincide
+            free(nuevaTorreta);
+            return;
+    }
+
+    // Asignar coordenadas de la torreta
+    nuevaTorreta->coordenadas.Xpos = posicionX;
+    nuevaTorreta->coordenadas.Ypos = posicionY;
+
+    SDL_Log("coordenadas guardadas de la torreta X: %d, Y: %d", nuevaTorreta->coordenadas.Xpos, nuevaTorreta->coordenadas.Ypos);
+
+    nuevaTorreta->costo = costoTorreta;
+
+    jugador->puntos -= costoTorreta;
+
+    // Cambiar el código para dibujar la torreta según sus coordenadas reales
+    dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
+
+    // Agregar la torreta a la lista
+    pushBack(listaTorretas, nuevaTorreta);
+
+    // Verificar si las coordenadas se han guardado correctamente
+    Torreta* torretaVerificacion = firstList(listaTorretas);
+    if (torretaVerificacion != NULL) {
+        SDL_Log("Coordenadas de la torreta en la lista - X: %d, Y: %d", torretaVerificacion->coordenadas.Xpos, torretaVerificacion->coordenadas.Ypos);
+    } else {
+        SDL_Log("Error: La torreta no se ha agregado correctamente a la lista.");
+    }
+}*/
 
 
 // Esta función solo funciona para la torreta que detecta ataques en su area
@@ -357,7 +419,7 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
                         curTorreta->angulo += 180;
                     }
 
-                    // Aquí debería ir updateProyectil
+
                 }
                 curEnemigo = nextList(listaEnemigos);
             }
@@ -490,6 +552,7 @@ int WinMain(int argc, char* argv[]) {
     int inSettings=0;
     Uint32 frameStart;
     int frameTime;
+    Uint32 tiempoTranscurrido = 0;
 
     while (running) {
 
@@ -558,6 +621,8 @@ int WinMain(int argc, char* argv[]) {
                                 int mouseX = event.button.x;
                                 int mouseY = event.button.y;
 
+                                tiempoTranscurrido += TICK;
+
                                 if (mouseX >= 0 && mouseX <= windowWidth && mouseY >= 0 && mouseY <= windowHeight){
 
                                     int juegoMouseX = mouseX;
@@ -565,6 +630,25 @@ int WinMain(int argc, char* argv[]) {
 
                                     if (esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY)){
                                         colocarTorreta(listaTorretas, &jugador, renderer, 1, juegoMouseX, juegoMouseY);
+
+                                        Torreta* torretaVerificada = firstList(listaTorretas);
+                                        while (torretaVerificada != NULL) {
+                                            SDL_Log("X: %d, Y: %d", torretaVerificada->coordenadas.Xpos, torretaVerificada->coordenadas.Ypos);
+                                            if (torretaVerificada->coordenadas.Xpos == juegoMouseX && torretaVerificada->coordenadas.Ypos == juegoMouseY) {
+                                                SDL_Log("Torreta colocada en (%d, %d)", juegoMouseX, juegoMouseY);
+                                                break;
+                                            }
+                                            torretaVerificada = nextList(listaTorretas);
+                                        }
+
+                                        if (torretaVerificada == NULL) {
+                                            SDL_Log("Error al colocar la torreta en (%d, %d)", juegoMouseX, juegoMouseY);
+                                        }
+                                    }
+
+                                    if (tiempoTranscurrido >= 1000){
+                                        atacarEnemigos(listaTorretas, listaEnemigos, &jugador, renderer);
+                                        tiempoTranscurrido = 0;
                                     }
                                 }
                             }
