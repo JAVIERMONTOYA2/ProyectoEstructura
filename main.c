@@ -16,7 +16,8 @@
 typedef enum{
     MENU,
     JUGANDO,
-    PAUSA,
+    WIN,
+    LOSE
 }EstadoJuego;
 
 typedef struct {
@@ -49,6 +50,7 @@ typedef struct{
     int vida;
     int daño;
     int premio;
+    int direccion;
 } Enemigo;
 
 typedef struct{
@@ -431,80 +433,6 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
 }
 
-
-
-
-// Asumí que se toman los datos del tipo y las posiciones de otro lado xd
-/*void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY) {
-    int costoTorreta;
-
-    // Voy a poner costos arbitrarios
-    switch (tipoTorreta) {
-        case 1:
-            costoTorreta = 25;
-            break;
-        case 2:
-            costoTorreta = 50;
-            break;
-        case 3:
-            costoTorreta = 75;
-            break;
-        default:
-            // si el tipo de torreta no coincide
-            return;
-    }
-
-    if (jugador->puntos < costoTorreta) {
-        // jugador no tiene suficiente dinero
-        return;
-    }
-
-    // Creación de la torreta
-    Torreta* nuevaTorreta = malloc(sizeof(Torreta));
-
-    // Seleccionar tipo de torreta
-    switch (tipoTorreta) {
-        case 1:
-            nuevaTorreta->tipo = "1";
-            break;
-        case 2:
-            nuevaTorreta->tipo = "2";
-            break;
-        case 3:
-            nuevaTorreta->tipo = "3";
-            break;
-        default:
-            //si el tipo de torreta no coincide
-            free(nuevaTorreta);
-            return;
-    }
-
-    // Asignar coordenadas de la torreta
-    nuevaTorreta->coordenadas.Xpos = posicionX;
-    nuevaTorreta->coordenadas.Ypos = posicionY;
-
-    SDL_Log("coordenadas guardadas de la torreta X: %d, Y: %d", nuevaTorreta->coordenadas.Xpos, nuevaTorreta->coordenadas.Ypos);
-
-    nuevaTorreta->costo = costoTorreta;
-
-    jugador->puntos -= costoTorreta;
-
-    // Cambiar el código para dibujar la torreta según sus coordenadas reales
-    dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
-
-    // Agregar la torreta a la lista
-    pushBack(listaTorretas, nuevaTorreta);
-
-    // Verificar si las coordenadas se han guardado correctamente
-    Torreta* torretaVerificacion = firstList(listaTorretas);
-    if (torretaVerificacion != NULL) {
-        SDL_Log("Coordenadas de la torreta en la lista - X: %d, Y: %d", torretaVerificacion->coordenadas.Xpos, torretaVerificacion->coordenadas.Ypos);
-    } else {
-        SDL_Log("Error: La torreta no se ha agregado correctamente a la lista.");
-    }
-}*/
-
-
 // Esta función solo funciona para la torreta que detecta ataques en su area
 void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, SDL_Renderer* renderer){
     Torreta *curTorreta = firstList(listaTorretas);
@@ -553,7 +481,6 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
     }
 }
 
-/*
 void cargarEnemigos(List* listaEnemigos, int ronda){
     int cantEnemigosSpawnear = 5 * ronda + 1;
     int i = 0;
@@ -565,55 +492,90 @@ void cargarEnemigos(List* listaEnemigos, int ronda){
             nuevoEnemigo->vida = 3;
             nuevoEnemigo->daño = 3;
             nuevoEnemigo->premio = 100;
+            SDL_Log("Enemigo %d: %s", i, nuevoEnemigo->tipo);
         } else if (ronda == 2){
             nuevoEnemigo->tipo = "b";
             nuevoEnemigo->velocidad = 5;
             nuevoEnemigo->vida = 5;
             nuevoEnemigo->daño = 5;
             nuevoEnemigo->premio = 200;
+            SDL_Log("Enemigo %d: %s", i, nuevoEnemigo->tipo);
         } else if (ronda == 3){
             nuevoEnemigo->tipo = "c";
             nuevoEnemigo->velocidad = 1;
             nuevoEnemigo->vida = 20;
             nuevoEnemigo->daño = 20;
             nuevoEnemigo->premio = 500;
-        } else if (ronda == 4){
+            SDL_Log("Enemigo %d: %s", i, nuevoEnemigo->tipo);
+        } else if (ronda >= 4){
             if (i <= 5){
                 nuevoEnemigo->tipo = "a";
                 nuevoEnemigo->velocidad = 3;
                 nuevoEnemigo->vida = 3;
                 nuevoEnemigo->daño = 3;
                 nuevoEnemigo->premio = 100;
+                SDL_Log("Enemigo %d: %s", i, nuevoEnemigo->tipo);
             } else if (i <= 10 && i > 5){
                 nuevoEnemigo->tipo = "b";
                 nuevoEnemigo->velocidad = 5;
                 nuevoEnemigo->vida = 5;
                 nuevoEnemigo->daño = 5;
                 nuevoEnemigo->premio = 200;
+                SDL_Log("Enemigo %d: %s", i, nuevoEnemigo->tipo);
             } else {
                 nuevoEnemigo->tipo = "c";
                 nuevoEnemigo->velocidad = 1;
                 nuevoEnemigo->vida = 20;
                 nuevoEnemigo->daño = 20;
                 nuevoEnemigo->premio = 500;
+                SDL_Log("Enemigo %d: %s", i, nuevoEnemigo->tipo);
             }
         }
-        pushBack(listaEnemigos, nuevoEnemigo);
+        pushFront(listaEnemigos, nuevoEnemigo);
+        i++;
+    }
+}
+
+void moverEnemigo(Enemigo* arregloEnemigos){
+    int i = 0;
+    while (arregloEnemigos[i].tipo != NULL){
+        if (arregloEnemigos[i].tipo == "a"){
+            arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad;
+        } else if (arregloEnemigos[i].tipo == "b"){
+            arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad;
+        } else if (arregloEnemigos[i].tipo == "c"){
+            arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad;
+        }
         i++;
     }
 }
 
 void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
     Enemigo* tempEnemigo = firstList(listaEnemigos);
+    Uint32 tiempoTrancurrido = 0;
     int i=0;
     while (tempEnemigo != NULL){
-        arregloEnemigos[i] = *tempEnemigo;
-        tempEnemigo = nextList(listaEnemigos);
-        popFront(listaEnemigos);
-        i++;
+        tiempoTrancurrido += TICK;
+        if (tiempoTrancurrido >= 1000000000){
+            arregloEnemigos[i] = *tempEnemigo;
+            if (i%2 == 0){
+                arregloEnemigos[i].posicion.Xpos = 1280;
+                arregloEnemigos[i].posicion.Ypos = 0;
+                arregloEnemigos[i].direccion = 1;
+            } else {
+                arregloEnemigos[i].posicion.Xpos = 1920;
+                arregloEnemigos[i].posicion.Ypos = 815;
+                arregloEnemigos[i].direccion = 2;
+            }
+            tempEnemigo = nextList(listaEnemigos);
+            popFront(listaEnemigos);
+            SDL_Log("Enemigo %d: %s elpepekbron", i, arregloEnemigos[i].tipo);
+            i++;
+            tiempoTrancurrido = 0;
+        }
     }
 
-}*/
+}
 
 int WinMain(int argc, char* argv[]) {
 
@@ -658,7 +620,7 @@ int WinMain(int argc, char* argv[]) {
         return 1;
     }
 
-    const int maxWidth = 1920;
+    const int maxWidth = 1980;
     const int maxHeight = 1080;
 
     int windowWidth = dm.w;
@@ -759,6 +721,7 @@ int WinMain(int argc, char* argv[]) {
                             if (event.button.button == SDL_BUTTON_LEFT){
                                 int mouseX = event.button.x;
                                 int mouseY = event.button.y;
+                                SDL_Log("X: %d, Y: %d", mouseX, mouseY);
 
                                 tiempoTranscurrido += TICK;
 
@@ -800,10 +763,37 @@ int WinMain(int argc, char* argv[]) {
                             if (event.key.keysym.sym == SDLK_ESCAPE) {
                                 estadoActual = MENU;
                             }
+                            if (event.key.keysym.sym == SDLK_r) {
+                                cargarEnemigos(listaEnemigos, jugador.ronda);
+                                jugador.ronda++;
+                            }
                             break;
                     }
                     break;
-
+                case WIN:
+                    switch (event.type) {
+                        case SDL_QUIT:
+                            running = 0;
+                            break;
+                        case SDL_KEYDOWN:
+                            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                                running = 0;
+                            }
+                            break;
+                    }
+                    break;
+                case LOSE:
+                    switch (event.type) {
+                        case SDL_QUIT:
+                            running = 0;
+                            break;
+                        case SDL_KEYDOWN:
+                            if (event.key.keysym.sym == SDLK_ESCAPE) {
+                                running = 0;
+                            }
+                            break;
+                    }
+                    break;
             }
 
         }
@@ -812,8 +802,11 @@ int WinMain(int argc, char* argv[]) {
             case MENU:
                 break;
             case JUGANDO:
+                generarEnemigo(listaEnemigos, enemigos);
                 break;
-            case PAUSA:
+            case WIN:
+                break;
+            case LOSE:
                 break;
         }
         //switch para renderizar los eventos del juego
@@ -824,9 +817,10 @@ int WinMain(int argc, char* argv[]) {
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
-                dibujarImagen(renderer,TORRETA1, 604, 233);
                 break;
-            case PAUSA:
+            case WIN:
+                break;
+            case LOSE:
                 break;
         }
         frameTime = SDL_GetTicks() - frameStart;
