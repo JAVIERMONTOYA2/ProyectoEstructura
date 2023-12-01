@@ -119,6 +119,9 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
     SDL_Color color = { 0, 0, 0, 255 };
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, frases[indiceFrase], color);
 
+
+
+
     // Verifica si hay error al crear la superficie
     if (!textSurface) {
         SDL_Log("Error al renderizar la superficie del texto: %s", TTF_GetError());
