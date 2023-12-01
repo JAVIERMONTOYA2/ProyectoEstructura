@@ -5,6 +5,7 @@
 #include "list.h"
 #include <math.h>
 #include <SDL_ttf.h>
+#include <time.h>
 
 #define FPS 60
 #define TICK 1000/FPS
@@ -59,7 +60,7 @@ typedef struct{
 const char *frases[] = {
         "El cuidado del medio ambiente es responsabilidad de todos",
         "Reducir, reutilizar y reciclar: claves para conservar nuestro entorno",
-        "La naturaleza nos brinda vida, cuidémosla con amor",
+        "La naturaleza nos brinda vida, cuidemosla con amor",
         "Cada accion cuenta en la proteccion del medio ambiente",
         "La biodiversidad es esencial para el equilibrio de nuestro planeta",
         "El cambio climatico es una realidad que debemos enfrentar juntos",
@@ -69,7 +70,7 @@ const char *frases[] = {
         "Las energias renovables son la clave para un futuro más limpio",
         "Plantar arboles es una forma efectiva de combatir la deforestacion",
         "Cuidar los oceanos es fundamental para preservar la vida marina",
-        "Las pequeñas acciones diarias marcan la diferencia en la conservacion ambiental",
+        "Los gestos cotidianos son clave para preservar nuestro entorno ambiental",
         "El consumo responsable es un paso importante hacia la sostenibilidad",
         "Apostar por la movilidad sostenible reduce la huella de carbono",
         "La conservacion del agua es crucial para la supervivencia de nuestro planeta",
@@ -78,7 +79,7 @@ const char *frases[] = {
         "La proteccion de la fauna silvestre es esencial para mantener el equilibrio natural",
         "La agricultura sostenible garantiza la seguridad alimentaria a largo plazo",
         "La colaboracion global es necesaria para enfrentar los desafios ambientales",
-        "Los plasticos de un solo uso dañan gravemente el medio ambiente",
+        "Los plasticos desechables perjudican el medio ambiente",
         "La conservacion de los bosques es vital para contrarrestar el cambio climatico",
         "Las energías limpias son la clave para un futuro libre de emisiones",
         "La responsabilidad corporativa es crucial en la protección del entorno",
@@ -89,7 +90,7 @@ const char *frases[] = {
         "La conservacion de la capa de ozono es esencial para proteger la vida en la Tierra",
         "La gestion adecuada de residuos minimiza el impacto en el medio ambiente",
         "La preservacion de los humedales es crucial para la biodiversidad",
-        "El ecoturismo contribuye a la conservacion de áreas naturales",
+        "El ecoturismo contribuye a la conservacion de areas naturales",
         "El cuidado de los polinizadores es vital para la produccion de alimentos",
         "La eficiencia energetica es clave para reducir el consumo de recursos",
         "La proteccion de los hábitats naturales es una prioridad para la conservacion",
@@ -101,18 +102,22 @@ const char *frases[] = {
         "El uso responsable de la tierra preserva su fertilidad a largo plazo",
         "La educacion ambiental desde temprana edad crea conciencia sobre la importancia de la naturaleza",
         "El respeto por la biodiversidad garantiza un ecosistema equilibrado",
-        "Las energías limpias ofrecen soluciones a los problemas climaticos",
-        "La conservacion de los suelos evita la erosión y pérdida de nutrientes",
+        "Las energias limpias ofrecen soluciones a los problemas climaticos",
+        "La conservacion de los suelos evita la erosión y perdida de nutrientes",
         "La preservacion de los glaciares es crucial para el equilibrio hidrico",
         "La adopcion de habitos ecoamigables es clave para el futuro del planeta",
         "La cooperación internacional es esencial para abordar problemas ambientales globales",
         "El amor y cuidado por la Tierra son la base de un futuro sostenible para las generaciones venideras"
 };
 
-void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto) {
-    int indice_frase = rand() % 50;
+int generarNumeroAleatorio() {
+    srand(time(NULL)); // Semilla basada en el tiempo actual para una mejor aleatoriedad
+    return (rand() % 50); // Genera un número aleatorio entre 1 y 50
+}
+
+void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto, int indiceFrase) {
     SDL_Color color = { 0, 0, 0, 255 };
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, frases[indice_frase], color);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, frases[indiceFrase], color);
 
     // Verifica si hay error al crear la superficie
     if (!textSurface) {
@@ -123,7 +128,6 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
     // Calcula el ancho y alto del texto
     int textWidth = textSurface->w;
     int textHeight = textSurface->h;
-
     // Define el tamaño máximo del texto permitido (80% del ancho de la ventana)
     int maxWidth = ventana_ancho * 0.8;
 
@@ -135,7 +139,11 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
         textHeight = textHeight * scale;
     }
 
-    // Crea una textura desde la superficie del texto utilizando la escala calculada
+    // Define la nueva posición del texto
+    int x = 180;
+    int y = 450;
+
+    // Crea una textura desde la superficie del texto
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
     if (!textTexture) {
         SDL_Log("Error al crear la textura del texto: %s", SDL_GetError());
@@ -143,13 +151,8 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
         return;
     }
 
-    // Calcula la posición para centrar el texto en la ventana
-    int x = (ventana_ancho - textWidth) / 2;
-    int y = (ventana_alto - textHeight) / 2;
-
     // Define el rectángulo que representa el área donde se mostrará el texto
     SDL_Rect destRect = { x, y, textWidth, textHeight };
-
 
     // Renderiza la textura del texto en la ventana
     SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
@@ -600,6 +603,7 @@ void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
 int WinMain(int argc, char* argv[]) {
 
     EstadoJuego estadoActual = MENU;
+    int numeroAleatorio = generarNumeroAleatorio();
 
     List* listaTorretas = createList();
     List* listaEnemigos = createList();
@@ -673,7 +677,6 @@ int WinMain(int argc, char* argv[]) {
     Uint32 tiempoTranscurrido = 0;
 
     while (running) {
-
         frameTime = SDL_GetTicks();
 
         while (SDL_PollEvent(&event)) {
@@ -702,10 +705,13 @@ int WinMain(int argc, char* argv[]) {
                                 if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
 
                                     SDL_Log("Jugar");
+                                    numeroAleatorio = generarNumeroAleatorio();
                                     estadoActual = JUGANDO;
+
                                 }
                                 buttonY = windowHeight * (0.6 - 0.05);
                                 if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth && mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                                    numeroAleatorio = generarNumeroAleatorio();
                                     // Si el usuario hace clic en "Configuraciones".
                                     SDL_Log("Configuraciones");
                                     if (!inSettings) {
@@ -799,7 +805,7 @@ int WinMain(int argc, char* argv[]) {
         switch (estadoActual) {
             case MENU:
                 dibujarFondo(BACKGROUND, windowWidth,windowHeight,window,renderer);
-                //dibujarFraseAleatoria(renderer, fuente, windowWidth, windowHeight);
+                dibujarFraseAleatoria(renderer, fuente, windowWidth, windowHeight,numeroAleatorio);
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
