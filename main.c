@@ -115,7 +115,7 @@ int generarNumeroAleatorio() {
     return (rand() % 50); // Genera un número aleatorio entre 1 y 50
 }
 
-void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto, int indiceFrase) {
+void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto, int indiceFrase,SDL_Window* window) {
     SDL_Color color = { 0, 0, 0, 255 };
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, frases[indiceFrase], color);
 
@@ -336,39 +336,47 @@ int mostrarConfiguraciones(SDL_Window* window, SDL_Renderer* renderer) {
     return 0;
 }
 
-int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
+int esPosicionValidaTorreta(List* listaTorretas, int x, int y, SDL_Window* window){
 
     Torreta* tempTorreta = firstList(listaTorretas);
 
+    // Obtener el ancho y el alto de la ventana actual
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+    // Calcular la relación de aspecto de la ventana respecto a la resolución original
+    float aspectRatio = (float)windowWidth / 1920.0f;
+
     while (tempTorreta != NULL) {
 
-        if (x >= tempTorreta->coordenadas.Xpos - 100 && x <= tempTorreta->coordenadas.Xpos + 100 &&
-            y >= tempTorreta->coordenadas.Ypos - 50 && y <= tempTorreta->coordenadas.Ypos + 50) {
+        if (x >= tempTorreta->coordenadas.Xpos * aspectRatio - 100 * aspectRatio && x <= tempTorreta->coordenadas.Xpos * aspectRatio + 100 * aspectRatio &&
+            y >= tempTorreta->coordenadas.Ypos * aspectRatio - 50 * aspectRatio && y <= tempTorreta->coordenadas.Ypos * aspectRatio + 50 * aspectRatio) {
             SDL_Log("Posición inválida torre: Superposición con otra torreta");
             return 0;
         }
         tempTorreta = nextList(listaTorretas);
     }
 
-    if (x >= 604 && x <= 708 && y >= 233 && y <= 276) {
+    // Ajustar las posiciones válidas según la relación de aspecto
+    if (x >= 604 * aspectRatio && x <= 708 * aspectRatio && y >= 233 * aspectRatio && y <= 276 * aspectRatio) {
         SDL_Log("Posición válida 1");
         return 1;
-    } else if (x >= 1240 && x <= 1345 && y >= 244 && y <= 289) {
+    } else if (x >= 1240 * aspectRatio && x <= 1345 * aspectRatio && y >= 244 * aspectRatio && y <= 289 * aspectRatio) {
         SDL_Log("Posición válida 2");
         return 1;
-    } else if (x >= 295 && x <= 400 && y >= 372 && y <= 415) {
+    } else if (x >= 295 * aspectRatio && x <= 400 * aspectRatio && y >= 372 * aspectRatio && y <= 415 * aspectRatio) {
         SDL_Log("Posición válida 3");
         return 1;
-    } else if (x >= 609 && x <= 734 && y >= 464 && y <= 520) {
+    } else if (x >= 609 * aspectRatio && x <= 734 * aspectRatio && y >= 464 * aspectRatio && y <= 520 * aspectRatio) {
         SDL_Log("Posición válida 4");
         return 1;
-    } else if (x >= 669 && x <= 802 && y >= 928 && y <= 976) {
+    } else if (x >= 669 * aspectRatio && x <= 802 * aspectRatio && y >= 928 * aspectRatio && y <= 976 * aspectRatio) {
         SDL_Log("Posición válida 5");
         return 1;
-    } else if (x >= 1270 && x <= 1411 && y >= 671 && y <= 724) {
+    } else if (x >= 1270 * aspectRatio && x <= 1411 * aspectRatio && y >= 671 * aspectRatio && y <= 724 * aspectRatio) {
         SDL_Log("Posición válida 6");
         return 1;
-    } else if (x >= 1651 && x <= 1805 && y >= 942 && y <= 990) {
+    } else if (x >= 1651 * aspectRatio && x <= 1805 * aspectRatio && y >= 942 * aspectRatio && y <= 990 * aspectRatio) {
         SDL_Log("Posición válida 7");
         return 1;
     }
@@ -378,7 +386,8 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
     return 0;
 }
 
-void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY) {
+
+void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY,SDL_Window* window) {
     int costoTorreta;
 
     costoTorreta = 25;  // Costo arbitrario según el tipo
@@ -389,7 +398,7 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     }
 
     // Verificar si la posición es válida
-    if (!esPosicionValidaTorreta(listaTorretas, posicionX, posicionY)) {
+    if (!esPosicionValidaTorreta(listaTorretas, posicionX, posicionY, window)) {
         // Posición inválida
         return;
     }
@@ -753,8 +762,8 @@ int WinMain(int argc, char* argv[]) {
                                     int juegoMouseX = mouseX;
                                     int juegoMouseY = mouseY;
 
-                                    if (esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY)){
-                                        colocarTorreta(listaTorretas, &jugador, renderer, 1, juegoMouseX, juegoMouseY);
+                                    if (esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY, window)){
+                                        colocarTorreta(listaTorretas, &jugador, renderer, 1, juegoMouseX, juegoMouseY,window);
 
                                         Torreta* torretaVerificada = firstList(listaTorretas);
                                         while (torretaVerificada != NULL) {
@@ -810,6 +819,7 @@ int WinMain(int argc, char* argv[]) {
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
+                dibujarImagen(renderer,TORRETA1, 604, 233);
                 break;
             case PAUSA:
                 break;
