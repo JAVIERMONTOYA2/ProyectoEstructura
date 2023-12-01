@@ -338,9 +338,10 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y) {
     Torreta* tempTorreta = firstList(listaTorretas);
 
     while (tempTorreta != NULL) {
-        if (tempTorreta->coordenadas.Xpos == x && tempTorreta->coordenadas.Ypos == y) {
-            SDL_Log("Posición inválida torre");
-            // Ya hay una torreta en esa posición
+
+        if (x >= tempTorreta->coordenadas.Xpos - 100 && x <= tempTorreta->coordenadas.Xpos + 100 &&
+            y >= tempTorreta->coordenadas.Ypos - 50 && y <= tempTorreta->coordenadas.Ypos + 50) {
+            SDL_Log("Posición inválida torre: Superposición con otra torreta");
             return 0;
         }
         tempTorreta = nextList(listaTorretas);
@@ -380,7 +381,7 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     costoTorreta = 25;  // Costo arbitrario según el tipo
 
     if (jugador->puntos < costoTorreta) {
-        // Jugador no tiene suficientes puntos
+        SDL_Log("Fondos insuficientes");
         return;
     }
 
