@@ -81,10 +81,10 @@ const char *frases[] = {
         "La colaboracion global es necesaria para enfrentar los desafios ambientales",
         "Los plasticos desechables perjudican el medio ambiente",
         "La conservacion de los bosques es vital para contrarrestar el cambio climatico",
-        "Las energías limpias son la clave para un futuro libre de emisiones",
-        "La responsabilidad corporativa es crucial en la protección del entorno",
+        "Las energias limpias son la clave para un futuro libre de emisiones",
+        "La responsabilidad corporativa es crucial en la proteccion del entorno",
         "Reducir el derroche de alimentos es una forma de cuidar el planeta",
-        "Las acciones locales tienen un impacto global en la preservación ambiental",
+        "Las acciones locales tienen un impacto global en la preservacion ambiental",
         "La sensibilizacion sobre el cuidado del medio ambiente es fundamental",
         "La reforestacion es una herramienta efectiva en la lucha contra la degradacion del suelo",
         "La conservacion de la capa de ozono es esencial para proteger la vida en la Tierra",
@@ -98,15 +98,15 @@ const char *frases[] = {
         "La reduccion de emisiones de gases de efecto invernadero es urgente",
         "La proteccion de los arrecifes de coral es esencial para la vida marina",
         "La transicion hacia una economia circular minimiza el desperdicio",
-        "La conservacion de la fauna en peligro de extinción es una responsabilidad compartida",
+        "La conservacion de la fauna en peligro de extincion es una responsabilidad compartida",
         "El uso responsable de la tierra preserva su fertilidad a largo plazo",
         "La educacion ambiental desde temprana edad crea conciencia sobre la importancia de la naturaleza",
         "El respeto por la biodiversidad garantiza un ecosistema equilibrado",
         "Las energias limpias ofrecen soluciones a los problemas climaticos",
-        "La conservacion de los suelos evita la erosión y perdida de nutrientes",
+        "La conservacion de los suelos evita la erosion y perdida de nutrientes",
         "La preservacion de los glaciares es crucial para el equilibrio hidrico",
         "La adopcion de habitos ecoamigables es clave para el futuro del planeta",
-        "La cooperación internacional es esencial para abordar problemas ambientales globales",
+        "La cooperacion internacional es esencial para abordar problemas ambientales globales",
         "El amor y cuidado por la Tierra son la base de un futuro sostenible para las generaciones venideras"
 };
 
@@ -125,23 +125,23 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
         return;
     }
 
-    // Calcula el ancho y alto del texto
+    // Calcula el tamaño proporcional del texto basado en la ventana
     int textWidth = textSurface->w;
     int textHeight = textSurface->h;
-    // Define el tamaño máximo del texto permitido (80% del ancho de la ventana)
-    int maxWidth = ventana_ancho * 0.8;
 
-    // Si el texto es demasiado ancho, calcula la escala de la fuente para ajustarlo
-    float scale = 1.0;
-    if (textWidth > maxWidth) {
-        scale = (float)maxWidth / textWidth;
-        textWidth = maxWidth;
-        textHeight = textHeight * scale;
-    }
+    float scaleX = (float)ventana_ancho * 0.8 / textWidth; // Escala en el ancho
+    float scaleY = (float)ventana_alto * 0.8 / textHeight; // Escala en la altura
 
-    // Define la nueva posición del texto
-    int x = 180;
-    int y = 450;
+    // Encuentra la escala mínima para mantener la proporción
+    float scale = (scaleX < scaleY) ? scaleX : scaleY;
+
+    // Aplica la escala al ancho y alto del texto
+    textWidth *= scale;
+    textHeight *= scale;
+
+    // Define la posición relativa del texto en la ventana
+    int x = (ventana_ancho - textWidth) / 2;
+    int y = (ventana_alto - textHeight)/ 2.3;
 
     // Crea una textura desde la superficie del texto
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -164,6 +164,8 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
     // Actualiza la ventana con el texto renderizado
     SDL_RenderPresent(renderer);
 }
+
+
 
 
 
