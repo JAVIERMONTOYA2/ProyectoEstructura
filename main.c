@@ -115,7 +115,7 @@ int generarNumeroAleatorio() {
     return (rand() % 50); // Genera un número aleatorio entre 1 y 50
 }
 
-void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto, int indiceFrase,SDL_Window* window) {
+void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto, int indiceFrase) {
     SDL_Color color = { 0, 0, 0, 255 };
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, frases[indiceFrase], color);
 
