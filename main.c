@@ -6,14 +6,11 @@
 #include <math.h>
 #include <SDL_ttf.h>
 #include <time.h>
-#include <stdbool.h>
 
 #define FPS 60
 #define TICK 1000/FPS
 #define BACKGROUND "../assets/Imagenes/bg.png"
 #define BACKGROUNDINGAME "../assets/Imagenes/bgingame_2.png"
-#define YOUWIN "../assets/Imagenes/youwin.png"
-#define YOULOSE "../assets/Imagenes/youlose.png"
 #define TORRETA1 "../assets/Imagenes/archer.png"
 
 typedef enum{
@@ -27,13 +24,6 @@ typedef struct {
     int Xpos;
     int Ypos;
 } Punto;
-
-typedef struct{
-    Punto inicio;
-    Punto final;
-    Punto actual;
-    char* tipo;
-} Proyectil ;
 
 typedef struct{
     SDL_Texture* textura;
@@ -147,75 +137,6 @@ void dibujarFraseAleatoria(SDL_Renderer* renderer, TTF_Font* font, int ventana_a
     // Define la posición relativa del texto en la ventana
     int x = (ventana_ancho - textWidth) / 2;
     int y = (ventana_alto - textHeight)/ 2.3;
-
-    // Crea una textura desde la superficie del texto
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (!textTexture) {
-        SDL_Log("Error al crear la textura del texto: %s", SDL_GetError());
-        SDL_FreeSurface(textSurface);
-        return;
-    }
-
-    // Define el rectángulo que representa el área donde se mostrará el texto
-    SDL_Rect destRect = { x, y, textWidth, textHeight };
-
-    // Renderiza la textura del texto en la ventana
-    SDL_RenderCopy(renderer, textTexture, NULL, &destRect);
-
-    // Libera la textura y la superficie del texto
-    SDL_DestroyTexture(textTexture);
-    SDL_FreeSurface(textSurface);
-
-    // Actualiza la ventana con el texto renderizado
-    SDL_RenderPresent(renderer);
-}
-
-
-//Función dibujarResultado: dibuja por pantalla el mensaje de victoria o derrota
-void dibujarResultado(SDL_Renderer* renderer, TTF_Font* font, int ventana_ancho, int ventana_alto, bool gano) {
-    SDL_Color color;
-    const char* mensaje;
-
-    if (gano) {
-        color.r = 0;
-        color.g = 0;
-        color.b = 255;
-        color.a = 255; // Color azul (RGBA)
-        mensaje = "VICTORIA!!!";
-    } else {
-        color.r = 255;
-        color.g = 0;
-        color.b = 0;
-        color.a = 255; // Color rojo (RGBA)
-        mensaje = "DERROTA :(";
-    }
-
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, mensaje, color);
-
-
-    // Verifica si hay error al crear la superficie
-    if (!textSurface) {
-        SDL_Log("Error al renderizar la superficie del texto: %s", TTF_GetError());
-        return;
-    }
-
-    // Calcula el tamaño proporcional del texto basado en la ventana
-    int textWidth = textSurface->w;
-    int textHeight = textSurface->h;
-
-    float scaleX = (float)ventana_ancho * 0.8 / textWidth; // Escala en el ancho
-    float scaleY = (float)ventana_alto * 0.8 / textHeight; // Escala en la altura
-
-    // Encuentra la escala mínima para mantener la proporción
-    float scale = (scaleX < scaleY) ? scaleX : scaleY;
-
-    // Aplica la escala al ancho y alto del texto
-    textWidth *= scale;
-    textHeight *= scale;
-
-    // Define la posición relativa del texto en la ventana
-    int x = (ventana_ancho - textWidth) / 2;
-    int y = (ventana_alto - textHeight) / 2.3;
 
     // Crea una textura desde la superficie del texto
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -432,25 +353,18 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y, SDL_Window* windo
 
     // Ajustar las posiciones válidas según la relación de aspecto
     if (x >= 604 * aspectRatio && x <= 708 * aspectRatio && y >= 233 * aspectRatio && y <= 276 * aspectRatio) {
-        SDL_Log("Posición válida 1");
         return 1;
     } else if (x >= 1240 * aspectRatio && x <= 1345 * aspectRatio && y >= 244 * aspectRatio && y <= 289 * aspectRatio) {
-        SDL_Log("Posición válida 2");
         return 1;
     } else if (x >= 295 * aspectRatio && x <= 400 * aspectRatio && y >= 372 * aspectRatio && y <= 415 * aspectRatio) {
-        SDL_Log("Posición válida 3");
         return 1;
     } else if (x >= 609 * aspectRatio && x <= 734 * aspectRatio && y >= 464 * aspectRatio && y <= 520 * aspectRatio) {
-        SDL_Log("Posición válida 4");
         return 1;
     } else if (x >= 669 * aspectRatio && x <= 802 * aspectRatio && y >= 928 * aspectRatio && y <= 976 * aspectRatio) {
-        SDL_Log("Posición válida 5");
         return 1;
     } else if (x >= 1270 * aspectRatio && x <= 1411 * aspectRatio && y >= 671 * aspectRatio && y <= 724 * aspectRatio) {
-        SDL_Log("Posición válida 6");
         return 1;
     } else if (x >= 1651 * aspectRatio && x <= 1805 * aspectRatio && y >= 942 * aspectRatio && y <= 990 * aspectRatio) {
-        SDL_Log("Posición válida 7");
         return 1;
     }
 
@@ -463,7 +377,7 @@ int esPosicionValidaTorreta(List* listaTorretas, int x, int y, SDL_Window* windo
 void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Renderer, int tipoTorreta, int posicionX, int posicionY,SDL_Window* window) {
     int costoTorreta;
 
-    costoTorreta = 25;  // Costo arbitrario según el tipo
+    costoTorreta = 25;
 
     if (jugador->puntos < costoTorreta) {
         SDL_Log("Fondos insuficientes");
@@ -478,6 +392,7 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
 
     // Creación y asignación de la torreta
     Torreta *nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
+    nuevaTorreta->dmg = 2;
     nuevaTorreta->coordenadas.Xpos = posicionX;
     nuevaTorreta->coordenadas.Ypos = posicionY;
     nuevaTorreta->costo = costoTorreta;
@@ -495,54 +410,55 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
         SDL_Log("Error: La torreta no se ha agregado correctamente a la lista.");
     }
 
-    // Cambiar el código para dibujar la torreta según sus coordenadas reales
-    dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
 }
 
 // Esta función solo funciona para la torreta que detecta ataques en su area
 void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, SDL_Renderer* renderer){
     Torreta *curTorreta = firstList(listaTorretas);
     if (curTorreta != NULL) {
-        if (curTorreta->textura != NULL) {
-            Enemigo *curEnemigo = firstList(listaEnemigos);
-            Enemigo *enemigoADisparar = NULL;
+        Enemigo *curEnemigo = firstList(listaEnemigos);
+        Enemigo *enemigoADisparar = NULL;
 
-            long posX = curTorreta->coordenadas.Xpos;
-            long posY = curTorreta->coordenadas.Ypos;
+        long posX = curTorreta->coordenadas.Xpos;
+        long posY = curTorreta->coordenadas.Ypos;
 
-            long disX, disY, radio, prioridadRadio, prioridadEnemigo;
+        long disX, disY, radio, prioridadRadio, prioridadEnemigo;
 
-            radio = 0;
-            prioridadRadio = 0;
+        radio = 0;
+        prioridadRadio = 0;
 
-            while (curEnemigo != NULL){
+        while (curEnemigo != NULL){
 
-                long enX = curEnemigo->posicion.Xpos + 100; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
-                long enY = curEnemigo->posicion.Ypos + 50;
-                radio = sqrt(pow(disX, 2) + pow(disY, 2));
+            long enX = curEnemigo->posicion.Xpos + 100; // tendría que ir sumado a algo para que se conozca más el "área" por donde camina el enemigo en ese momento
+            long enY = curEnemigo->posicion.Ypos + 50;
+            radio = sqrt(pow(disX, 2) + pow(disY, 2));
 
-                if (curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX) {
-                    prioridadRadio = radio;
-                    prioridadEnemigo = enX;
-                    enemigoADisparar = curEnemigo;
+            if (curEnemigo->vida != 0 && radio <= curTorreta->radio && prioridadEnemigo <= enX) {
+                prioridadRadio = radio;
+                prioridadEnemigo = enX;
+                enemigoADisparar = curEnemigo;
 
-                    // Giro
-                    if (enX - posX == 0 & enY - posY > 0) {
-                        curTorreta->angulo = 90;
-                    } else if (enX - posX == 0 & enY - posY < 0) {
-                        curTorreta->angulo = -90;
-                    } else {
-                        curTorreta->angulo = atan((enY - posY) / (enX - posX)) * 180 / 3.14159265;
-                        }
-                    if (enX - posX < 0) {
-                        curTorreta->angulo += 180;
-                    }
-
-
+                // Giro
+                if (enX - posX == 0 & enY - posY > 0) {
+                    curTorreta->angulo = 90;
+                } else if (enX - posX == 0 & enY - posY < 0) {
+                    curTorreta->angulo = -90;
+                } else {
+                    curTorreta->angulo = atan((enY - posY) / (enX - posX)) * 180 / 3.14159265;
                 }
-                curEnemigo = nextList(listaEnemigos);
+                if (enX - posX < 0) {
+                    curTorreta->angulo += 180;
+                }
+
+                if (enemigoADisparar != NULL) {
+                    enemigoADisparar->vida -= curTorreta->dmg;
+                    // Asegurarse de que la vida no se vuelva negativa
+                    enemigoADisparar->vida = fmax(enemigoADisparar->vida, 0);
+                }
+
             }
-            curTorreta = nextList(listaTorretas);
+                curEnemigo = nextList(listaEnemigos);
+                curTorreta = nextList(listaTorretas);
         }
     }
 }
@@ -602,7 +518,7 @@ void cargarEnemigos(List* listaEnemigos, int ronda){
     }
 }
 
-void moverEnemigo(Enemigo* arregloEnemigos){
+/*void moverEnemigo(Enemigo* arregloEnemigos){
     int i = 0;
     while (arregloEnemigos[i].tipo != NULL){
         if (arregloEnemigos[i].tipo == "a"){
@@ -614,7 +530,45 @@ void moverEnemigo(Enemigo* arregloEnemigos){
         }
         i++;
     }
+}*/
+
+void moverEnemigo(Enemigo* arregloEnemigos, SDL_Window* window) {
+    int i = 0;
+    int anchoPantalla, altoPantalla;
+    SDL_GetWindowSize(window, &anchoPantalla, &altoPantalla);
+    float relacionAncho = (float)anchoPantalla / 1920.0f;
+    float relacionAlto = (float)altoPantalla / 1080.0f;
+    while (arregloEnemigos[i].tipo != NULL) {
+        if (arregloEnemigos[i].tipo == "a" || arregloEnemigos[i].tipo == "b" || arregloEnemigos[i].tipo == "c") {
+            // Movimiento según el camino especificado
+            switch(arregloEnemigos[i].direccion){
+                case 1:
+                    arregloEnemigos[i].posicion.Ypos += arregloEnemigos[i].velocidad * relacionAlto;
+                    break;
+                case 2:
+                    arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+                    break;
+                case 3:
+                    arregloEnemigos[i].posicion.Ypos -= arregloEnemigos[i].velocidad * relacionAlto;
+                    break;
+                case 4:
+                    arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+                    break;
+            }
+        }
+        if (arregloEnemigos[i].posicion.Ypos >= 130 * relacionAlto && arregloEnemigos[i].direccion == 1){
+            arregloEnemigos[i].direccion = 4;
+        } else if (arregloEnemigos[i].posicion.Xpos <= 505 * relacionAncho && arregloEnemigos[i].direccion == 2){
+            arregloEnemigos[i].direccion = 3;
+        } else if (arregloEnemigos[i].posicion.Ypos <= 505 * relacionAlto && arregloEnemigos[i].direccion == 4){
+            arregloEnemigos[i].direccion = 1;
+        } else if ((arregloEnemigos[i].posicion.Xpos >= 500 * relacionAncho && arregloEnemigos[i].posicion.Xpos <= 510 * relacionAncho) && (arregloEnemigos[i].posicion.Ypos >= 500 * relacionAlto && arregloEnemigos[i].posicion.Ypos <= 510 * relacionAlto) && (arregloEnemigos[i].direccion == 3 || arregloEnemigos[i].direccion == 1)){
+            arregloEnemigos[i].direccion = 2;
+        }
+        i++;
+    }
 }
+
 
 void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
     Enemigo* tempEnemigo = firstList(listaEnemigos);
@@ -641,6 +595,19 @@ void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
         }
     }
 
+}
+
+void eliminarEnemigo(Enemigo* arregloEnemigos, int indice, Jugador* jugador) {
+    // Verificar si el enemigo ha llegado al objetivo
+    if (arregloEnemigos[indice].posicion.Xpos <= 0 && arregloEnemigos[indice].posicion.Ypos == 503) {
+        // Enemigo llegó al objetivo
+        jugador->vida -= arregloEnemigos[indice].daño;
+    } else {
+        // Enemigo eliminado por agotamiento de vida
+        jugador->puntos += arregloEnemigos[indice].premio;
+    }
+
+    arregloEnemigos[indice].tipo = NULL;
 }
 
 int WinMain(int argc, char* argv[]) {
@@ -710,7 +677,6 @@ int WinMain(int argc, char* argv[]) {
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
     SDL_FreeSurface(bgSurface);
-
 
     SDL_Event event;
     int running = 1;
@@ -799,25 +765,12 @@ int WinMain(int argc, char* argv[]) {
                                     if (esPosicionValidaTorreta(listaTorretas, juegoMouseX, juegoMouseY, window)){
                                         colocarTorreta(listaTorretas, &jugador, renderer, 1, juegoMouseX, juegoMouseY,window);
 
-                                        Torreta* torretaVerificada = firstList(listaTorretas);
-                                        while (torretaVerificada != NULL) {
-                                            SDL_Log("X: %d, Y: %d", torretaVerificada->coordenadas.Xpos, torretaVerificada->coordenadas.Ypos);
-                                            if (torretaVerificada->coordenadas.Xpos == juegoMouseX && torretaVerificada->coordenadas.Ypos == juegoMouseY) {
-                                                SDL_Log("Torreta colocada en (%d, %d)", juegoMouseX, juegoMouseY);
-                                                break;
-                                            }
-                                            torretaVerificada = nextList(listaTorretas);
-                                        }
-
-                                        if (torretaVerificada == NULL) {
-                                            SDL_Log("Error al colocar la torreta en (%d, %d)", juegoMouseX, juegoMouseY);
-                                        }
                                     }
 
-                                    if (tiempoTranscurrido >= 1000){
+                                    /*if (tiempoTranscurrido >= 1000){
                                         atacarEnemigos(listaTorretas, listaEnemigos, &jugador, renderer);
                                         tiempoTranscurrido = 0;
-                                    }
+                                    }*/
                                 }
                             }
                             break;
@@ -869,6 +822,26 @@ int WinMain(int argc, char* argv[]) {
                 break;
             case JUGANDO:
                 generarEnemigo(listaEnemigos, enemigos);
+                if (tiempoTranscurrido >= 1000){
+                    atacarEnemigos(listaTorretas, listaEnemigos, &jugador, renderer);
+                    moverEnemigo(enemigos, window);
+                    tiempoTranscurrido = 0;
+                }
+                if (jugador.vida <= 0){
+                    estadoActual = LOSE;
+                }
+                if (jugador.ronda == 5){
+                    estadoActual = WIN;
+                }
+
+                // Verificar si algún enemigo tiene vida igual o menor a cero
+                /*int j = 0;
+                while (enemigos[j].tipo != NULL) {
+                    if (enemigos[j].vida <= 0) {
+                        eliminarEnemigo(enemigos, j, &jugador);
+                    }
+                    j++;
+                }*/
                 break;
             case WIN:
                 break;
@@ -885,12 +858,8 @@ int WinMain(int argc, char* argv[]) {
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
                 break;
             case WIN:
-                dibujarFondo(YOUWIN, windowWidth,windowHeight,window,renderer);
-                dibujarResultado(renderer, fuente, windowWidth, windowHeight, true);
                 break;
             case LOSE:
-                dibujarFondo(YOULOSE, windowWidth,windowHeight,window,renderer);
-                dibujarResultado(renderer, fuente, windowWidth, windowHeight, false);
                 break;
         }
         frameTime = SDL_GetTicks() - frameStart;
