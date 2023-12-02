@@ -15,6 +15,6 @@
 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
 -- Found Threads: TRUE  
 -- Found SDL2TTF: C:/Users/Sean Jamen/CLionProjects/ProyectoEstructura/assets/SDL2_ttf-2.20.2/x86_64-w64-mingw32/lib/libSDL2_ttf.a  
--- Configuring done (2.9s)
--- Generating done (0.0s)
+-- Configuring done (2.7s)
+-- Generating done (0.1s)
 -- Build files have been written to: C:/Users/Sean Jamen/CLionProjects/ProyectoEstructura/cmake-build-debug
