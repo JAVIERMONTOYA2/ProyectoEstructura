@@ -554,11 +554,16 @@ void atacarEnemigos(List* listaTorretas, List* listaEnemigos, Jugador* jugador, 
                         curTorreta->angulo += 180;
                     }
 
+                    if (enemigoADisparar != NULL) {
+                        enemigoADisparar->vida -= curTorreta->dmg;
+                        // Asegurarse de que la vida no se vuelva negativa
+                        enemigoADisparar->vida = fmax(enemigoADisparar->vida, 0);
+                    }
 
                 }
                 curEnemigo = nextList(listaEnemigos);
+                curTorreta = nextList(listaTorretas);
             }
-            curTorreta = nextList(listaTorretas);
         }
     }
 }
