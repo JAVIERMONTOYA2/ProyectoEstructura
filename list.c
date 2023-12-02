@@ -5,19 +5,20 @@
 
 typedef struct Node Node;
 
-struct Node {
-    void * data;
-    Node * next;
-    Node * prev;
-};
 
-struct List {
-    Node * head;
-    Node * tail;
-    Node * current;
-};
 
 typedef List List;
+
+void freeList(List* lista) {
+    Node* temp;
+    while (lista->head != NULL) {
+        temp = lista->head;
+        lista->head = lista->head->next;
+        free(temp);
+    }
+    free(lista);
+}
+
 
 Node * createNode(void * data) {
     Node * new = (Node *)malloc(sizeof(Node));

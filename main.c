@@ -115,6 +115,14 @@ const char *frases[] = {
         "El amor y cuidado por la Tierra son la base de un futuro sostenible para las generaciones venideras"
 };
 
+void transformar_coordenadas(int x, int y, int windowWidth, int windowHeight, int *relativeX, int *relativeY) {
+    double scaleX = (double) windowWidth / 1920;
+    double scaleY = (double) windowHeight / 1080;
+
+    *relativeX = (int) (x * scaleX);
+    *relativeY = (int) (y * scaleY);
+}
+
 int generarNumeroAleatorio() {
     srand(time(NULL)); // Semilla basada en el tiempo actual para una mejor aleatoriedad
     return (rand() % 50); // Genera un número aleatorio entre 1 y 50
@@ -263,7 +271,7 @@ void dibujarFondo(char*nombre,int x,int y,SDL_Window* window,SDL_Renderer* rende
 
 //Esta funcion dibuja cualquier imagen solo necesitas el nombre del archivo, y una posicion
 //Cuando hagan el bucle del juego podre hacer que funcione bien
-void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
+void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y, int windowWidth, int windowHeight) {
     SDL_Surface* imageSurface = IMG_Load(nombreArchivo);
     if (!imageSurface) {
         SDL_Log("Error: IMG_Load() ha fallado: %s", IMG_GetError());
@@ -282,8 +290,14 @@ void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
     int width, height;
     SDL_QueryTexture(imageTexture, NULL, NULL, &width, &height);
     SDL_Rect destino;
-    destino.x = x;
-    destino.y = y;
+
+    // Transformamos las coordenadas x e y a coordenadas relativas al renderizador
+    int relativeX, relativeY;
+    transformar_coordenadas(x, y, windowWidth, windowHeight, &relativeX, &relativeY);
+
+    // Asignamos las coordenadas relativas al rectángulo destino
+    destino.x = relativeX;
+    destino.y = relativeY;
     destino.w = width;
     destino.h = height;
 
@@ -292,14 +306,15 @@ void dibujarImagen(SDL_Renderer* renderer, char *nombreArchivo, int x, int y) {
     SDL_DestroyTexture(imageTexture);
 }
 
-void dibujarTorreta(List* listaTorretas, SDL_Renderer* renderer) {
+void dibujarTorreta(List* listaTorretas, SDL_Renderer* renderer, int windowWidth, int windowHeight) {
     Torreta* tempTorreta = firstList(listaTorretas);
     if (tempTorreta == NULL){
         return;
     }
+
     while (tempTorreta != NULL) {
         if (tempTorreta->textura != NULL) {
-            dibujarImagen(renderer, TORRETA1, tempTorreta->coordenadas.Xpos, tempTorreta->coordenadas.Ypos);
+            dibujarImagen(renderer, TORRETA1, tempTorreta->coordenadas.Xpos, tempTorreta->coordenadas.Ypos,windowWidth, windowHeight);
         }
         tempTorreta = nextList(listaTorretas);
     }
@@ -497,7 +512,7 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
     }
 
     // Cambiar el código para dibujar la torreta según sus coordenadas reales
-    dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
+    //dibujarImagen(Renderer, TORRETA1, posicionX, posicionY);
 }
 
 // Esta función solo funciona para la torreta que detecta ataques en su area
@@ -908,6 +923,7 @@ int WinMain(int argc, char* argv[]) {
                 break;
             case JUGANDO:
                 dibujarFondo(BACKGROUNDINGAME, windowWidth,windowHeight,window,renderer);
+                dibujarTorreta(listaTorretas,renderer,windowWidth,windowHeight);
                 break;
             case WIN:
                 dibujarFondo(YOUWIN, windowWidth,windowHeight,window,renderer);
@@ -918,6 +934,7 @@ int WinMain(int argc, char* argv[]) {
                 dibujarResultado(renderer, fuente, windowWidth, windowHeight, false);
                 break;
         }
+        SDL_RenderPresent(renderer);
         frameTime = SDL_GetTicks() - frameStart;
         if (TICK > frameTime) {
             SDL_Delay(TICK - frameTime);
@@ -928,6 +945,7 @@ int WinMain(int argc, char* argv[]) {
         tempTorreta = nextList(listaTorretas);
     }
     free(enemigos);
+    freeList(listaTorretas);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

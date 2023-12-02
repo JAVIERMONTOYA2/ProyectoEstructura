@@ -3,6 +3,22 @@
 
 typedef struct List List;
 
+typedef struct Node Node;
+
+struct Node {
+    void * data;
+    Node * next;
+    Node * prev;
+};
+
+struct List {
+    Node * head;
+    Node * tail;
+    Node * current;
+};
+
+void freeList(List * list);
+
 List * createList(void);
 
 void * firstList(List * list);
