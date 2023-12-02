@@ -16,3 +16,5 @@ Una vez compilado, puedes ejecutar el programa directamente desde la terminal us
 
 Notas Adicionales
 El archivo CMakeLists.txt contiene la configuración necesaria para la compilación, incluyendo la inclusión de las bibliotecas SDL2.
+
+Alternativamente tambien puede abrir directamente el ejecutable "proyecto_estructura.exe" para saltarse la compilacion.
