@@ -1,6 +1,8 @@
 Requisitos Previos
 Asegúrate de tener instalado CMake y un compilador de C, como GCC.
 
+Clona el repoositorio con 'git clone https://github.com/JAVIERMONTOYA2/ProyectoEstructura'
+
 Pasos para Compilar
 Configuración Inicial con CMake:
 
