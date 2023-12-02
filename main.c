@@ -535,21 +535,29 @@ void moverEnemigo(Enemigo* arregloEnemigos, SDL_Window* window) {
     while (arregloEnemigos[i].tipo != NULL) {
         if (arregloEnemigos[i].tipo == "a" || arregloEnemigos[i].tipo == "b" || arregloEnemigos[i].tipo == "c") {
             // Movimiento según el camino especificado
-            if (arregloEnemigos[i].posicion.Xpos >= 1289 * relacionAncho && arregloEnemigos[i].posicion.Ypos == 0) {
-                arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
-            } else if (arregloEnemigos[i].posicion.Xpos == 1289 * relacionAncho && arregloEnemigos[i].posicion.Ypos < 132 * relacionAlto) {
-                arregloEnemigos[i].posicion.Ypos += arregloEnemigos[i].velocidad * relacionAlto;
-            } else if (arregloEnemigos[i].posicion.Xpos > 520 * relacionAncho && arregloEnemigos[i].posicion.Ypos == 132 * relacionAlto) {
-                arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
-            } else if (arregloEnemigos[i].posicion.Xpos == 520 * relacionAncho && arregloEnemigos[i].posicion.Ypos < 503 * relacionAlto) {
-                arregloEnemigos[i].posicion.Ypos += arregloEnemigos[i].velocidad * relacionAlto;
-            } else if (arregloEnemigos[i].posicion.Xpos > 0 && arregloEnemigos[i].posicion.Ypos == 503 * relacionAlto) {
-                arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
-            } else if (arregloEnemigos[i].posicion.Xpos == 1919 * relacionAncho && arregloEnemigos[i].posicion.Ypos > 801 * relacionAlto) {
-                arregloEnemigos[i].posicion.Ypos -= arregloEnemigos[i].velocidad * relacionAlto;
-            } else if (arregloEnemigos[i].posicion.Xpos > 520 * relacionAncho && arregloEnemigos[i].posicion.Ypos == 809 * relacionAlto) {
-                arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+            switch(arregloEnemigos[i].direccion){
+                case 1:
+                    arregloEnemigos[i].posicion.Ypos += arregloEnemigos[i].velocidad * relacionAlto;
+                    break;
+                case 2:
+                    arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+                    break;
+                case 3:
+                    arregloEnemigos[i].posicion.Ypos -= arregloEnemigos[i].velocidad * relacionAlto;
+                    break;
+                case 4:
+                    arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+                    break;
             }
+        }
+        if (arregloEnemigos[i].posicion.Ypos >= 130 * relacionAlto && arregloEnemigos[i].direccion == 1){
+            arregloEnemigos[i].direccion = 4;
+        } else if (arregloEnemigos[i].posicion.Xpos <= 505 * relacionAncho && arregloEnemigos[i].direccion == 2){
+            arregloEnemigos[i].direccion = 3;
+        } else if (arregloEnemigos[i].posicion.Ypos <= 505 * relacionAlto && arregloEnemigos[i].direccion == 4){
+            arregloEnemigos[i].direccion = 1;
+        } else if ((arregloEnemigos[i].posicion.Xpos >= 500 * relacionAncho && arregloEnemigos[i].posicion.Xpos <= 510 * relacionAncho) && (arregloEnemigos[i].posicion.Ypos >= 500 * relacionAlto && arregloEnemigos[i].posicion.Ypos <= 510 * relacionAlto) && (arregloEnemigos[i].direccion == 3 || arregloEnemigos[i].direccion == 1){
+            arregloEnemigos[i].direccion = 2;
         }
         i++;
     }
@@ -593,9 +601,7 @@ void eliminarEnemigo(Enemigo* arregloEnemigos, int indice, Jugador* jugador) {
         jugador->puntos += arregloEnemigos[indice].premio;
     }
 
-    // Eliminar el enemigo del arreglo
-    free(arregloEnemigos[indice].tipo);  // Liberar memoria asignada al tipo
-    memset(&arregloEnemigos[indice], 0, sizeof(Enemigo));  // Establecer todos los campos a 0 o NULL
+    arregloEnemigos[indice].tipo = NULL;
 }
 
 int WinMain(int argc, char* argv[]) {
@@ -812,6 +818,7 @@ int WinMain(int argc, char* argv[]) {
                 generarEnemigo(listaEnemigos, enemigos);
                 if (tiempoTranscurrido >= 1000){
                     atacarEnemigos(listaTorretas, listaEnemigos, &jugador, renderer);
+                    moverEnemigo(enemigos, window);
                     tiempoTranscurrido = 0;
                 }
                 if (jugador.vida <= 0){
