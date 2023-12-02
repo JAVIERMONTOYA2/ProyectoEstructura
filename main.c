@@ -471,6 +471,7 @@ void colocarTorreta(List* listaTorretas, Jugador* jugador, SDL_Renderer* Rendere
 
     // Creación y asignación de la torreta
     Torreta *nuevaTorreta = (Torreta*)malloc(sizeof(Torreta));
+    nuevaTorreta->dmg = 2;
     nuevaTorreta->coordenadas.Xpos = posicionX;
     nuevaTorreta->coordenadas.Ypos = posicionY;
     nuevaTorreta->costo = costoTorreta;
@@ -600,19 +601,43 @@ void cargarEnemigos(List* listaEnemigos, int ronda){
     }
 }
 
-void moverEnemigo(Enemigo* arregloEnemigos){
+void moverEnemigo(Enemigo* arregloEnemigos, SDL_Window* window) {
     int i = 0;
-    while (arregloEnemigos[i].tipo != NULL){
-        if (arregloEnemigos[i].tipo == "a"){
-            arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad;
-        } else if (arregloEnemigos[i].tipo == "b"){
-            arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad;
-        } else if (arregloEnemigos[i].tipo == "c"){
-            arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad;
+    int anchoPantalla, altoPantalla;
+    SDL_GetWindowSize(window, &anchoPantalla, &altoPantalla);
+    float relacionAncho = (float)anchoPantalla / 1920.0f;
+    float relacionAlto = (float)altoPantalla / 1080.0f;
+    while (arregloEnemigos[i].tipo != NULL) {
+        if (arregloEnemigos[i].tipo == "a" || arregloEnemigos[i].tipo == "b" || arregloEnemigos[i].tipo == "c") {
+            // Movimiento según el camino especificado
+            switch(arregloEnemigos[i].direccion){
+                case 1:
+                    arregloEnemigos[i].posicion.Ypos += arregloEnemigos[i].velocidad * relacionAlto;
+                    break;
+                case 2:
+                    arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+                    break;
+                case 3:
+                    arregloEnemigos[i].posicion.Ypos -= arregloEnemigos[i].velocidad * relacionAlto;
+                    break;
+                case 4:
+                    arregloEnemigos[i].posicion.Xpos -= arregloEnemigos[i].velocidad * relacionAncho;
+                    break;
+            }
+        }
+        if (arregloEnemigos[i].posicion.Ypos >= 130 * relacionAlto && arregloEnemigos[i].direccion == 1){
+            arregloEnemigos[i].direccion = 4;
+        } else if (arregloEnemigos[i].posicion.Xpos <= 505 * relacionAncho && arregloEnemigos[i].direccion == 2){
+            arregloEnemigos[i].direccion = 3;
+        } else if (arregloEnemigos[i].posicion.Ypos <= 505 * relacionAlto && arregloEnemigos[i].direccion == 4){
+            arregloEnemigos[i].direccion = 1;
+        } else if ((arregloEnemigos[i].posicion.Xpos >= 500 * relacionAncho && arregloEnemigos[i].posicion.Xpos <= 510 * relacionAncho) && (arregloEnemigos[i].posicion.Ypos >= 500 * relacionAlto && arregloEnemigos[i].posicion.Ypos <= 510 * relacionAlto) && (arregloEnemigos[i].direccion == 3 || arregloEnemigos[i].direccion == 1)){
+            arregloEnemigos[i].direccion = 2;
         }
         i++;
     }
 }
+
 
 void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
     Enemigo* tempEnemigo = firstList(listaEnemigos);
@@ -643,7 +668,7 @@ void generarEnemigo(List* listaEnemigos, Enemigo* arregloEnemigos){
 
 int WinMain(int argc, char* argv[]) {
 
-    EstadoJuego estadoActual = WIN;
+    EstadoJuego estadoActual = MENU;
     int numeroAleatorio = generarNumeroAleatorio();
 
     List* listaTorretas = createList();
