@@ -556,7 +556,7 @@ void moverEnemigo(Enemigo* arregloEnemigos, SDL_Window* window) {
             arregloEnemigos[i].direccion = 3;
         } else if (arregloEnemigos[i].posicion.Ypos <= 505 * relacionAlto && arregloEnemigos[i].direccion == 4){
             arregloEnemigos[i].direccion = 1;
-        } else if ((arregloEnemigos[i].posicion.Xpos >= 500 * relacionAncho && arregloEnemigos[i].posicion.Xpos <= 510 * relacionAncho) && (arregloEnemigos[i].posicion.Ypos >= 500 * relacionAlto && arregloEnemigos[i].posicion.Ypos <= 510 * relacionAlto) && (arregloEnemigos[i].direccion == 3 || arregloEnemigos[i].direccion == 1){
+        } else if ((arregloEnemigos[i].posicion.Xpos >= 500 * relacionAncho && arregloEnemigos[i].posicion.Xpos <= 510 * relacionAncho) && (arregloEnemigos[i].posicion.Ypos >= 500 * relacionAlto && arregloEnemigos[i].posicion.Ypos <= 510 * relacionAlto) && (arregloEnemigos[i].direccion == 3 || arregloEnemigos[i].direccion == 1)){
             arregloEnemigos[i].direccion = 2;
         }
         i++;
